@@ -219,6 +219,10 @@ class UpdateIssue(Command):
             os.unlink(tfile.name)
             t.join()
 
+            ret = ri.help_ask_write_issue()
+            if not ret:
+                return True
+
             # Show what you've edited.
             print(cnt)
             ri.help_update_description(issue, cnt)

@@ -134,6 +134,23 @@ class RedmineHelper(Redmine):
             print("")
             return False
 
+    def help_ask_write_issue(self):
+        """ Ask "Write issue continue? """
+        from redmine_shell.shell.input import redmine_input
+        try:
+            question = "Write issue continue?(y/N) "
+            answer = redmine_input(question)
+            if answer == 'y':
+                return True
+            else:
+                return False
+        except EOFError:
+            print("")
+            return False
+        except KeyboardInterrupt:
+            print("")
+            return False
+
     def help_ask_issue_number(self):
         """ Interactively get issue number from user. """
         from redmine_shell.shell.input import redmine_input
