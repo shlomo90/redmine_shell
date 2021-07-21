@@ -5,12 +5,15 @@ import os
 import time
 import tempfile
 import requests
+import webbrowser
+
 from redmine_shell.shell.config import DEBUG, DEFAULT_EDITOR
 from redmine_shell.shell.switch import (
     get_current_redmine, get_current_redmine_preview)
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.shell.helper import RedmineHelper
 from threading import Thread
+from urllib import parse
 
 
 # Surpress warning messages.
@@ -193,6 +196,13 @@ class UpdateIssue(Command):
             if pnum is None or wname is None:
                 print("No set PREVIEW_WIKI_NAME, PREVIEW_PROJ_NUM")
                 return None
+
+            url_path = 'redmine.piolink.com/projects/{}/wiki/{}'.format(
+                    pnum, wname)
+
+            url_addr = 'https://' + parse.quote(url_path)
+
+            webbrowser.open_new(url_addr)
 
             # NamedTemporaryFile instance should have "delete" flag False.
             # Because "help_user_input" uses the "delete" mode temp file.
