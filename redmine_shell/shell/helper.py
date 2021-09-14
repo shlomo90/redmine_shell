@@ -173,15 +173,23 @@ class RedmineHelper(Redmine):
                 print("")
                 return None
 
-            tmp_issue_ins = self.issue.get(issue)
-            answer = redmine_input(
-                "[#{} {}] -> (y/n)".format(
-                    tmp_issue_ins.id, tmp_issue_ins.subject))
-
+            answer = self.help_confirm_issue_number(issue)
             if answer == 'y':
                 break
 
         return issue
+
+    def help_confirm_issue_number(self, issue):
+        ''' Confirm the issue's subject is correct.
+        '''
+
+        from redmine_shell.shell.input import redmine_input
+
+        tmp_issue_ins = self.issue.get(issue)
+        answer = redmine_input(
+            "[#{} {}] -> (y/n)".format(
+                tmp_issue_ins.id, tmp_issue_ins.subject))
+        return answer
 
     @classmethod
     def help_ask_project_number(cls):

@@ -9,7 +9,8 @@ import webbrowser
 
 from redmine_shell.shell.config import DEBUG, DEFAULT_EDITOR
 from redmine_shell.shell.switch import (
-    get_current_redmine, get_current_redmine_preview)
+    get_current_redmine, get_current_redmine_preview,
+    get_current_redmine_week_report_issue)
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.shell.helper import RedmineHelper
 from threading import Thread
@@ -270,3 +271,123 @@ class ListJournal(Command):
                 journal.id, journal.notes.replace('\r', '').strip()))
         msg = '\n====================================\n'.join(lines)
         ri.help_user_input(msg.encode())
+
+
+class WeekReportIssue(Command):
+    ''' Update WeekReport Issue Command. '''
+    DESC = "Week Report Issue"
+
+    def _init_type(self):
+        self.type = CommandType.EXECUTE
+
+    def _preview_checker(self, path, ri):
+        # This is already validated.
+        pnum, wname = get_current_redmine_preview()
+        if pnum is None or wname is None:
+            print("No set PREVIEW_WIKI_NAME, PREVIEW_PROJ_NUM")
+            return True
+
+        # Check period time is one second.
+        period = 1
+
+        # The exit condition is the file (not swapfile) is closed.
+        # Parent process will delete the file after editting is done.
+        last_mtime = 0
+        while os.path.isfile(path) is True:
+            time.sleep(period)
+
+            latest_mtime = os.stat(path).st_mtime
+            if latest_mtime != last_mtime:
+                # Read the new edited file
+                with open(path, 'r') as fobj:
+                    data = fobj.read()
+                ri.wiki_page.update(wname, project_id=pnum, text=data)
+                last_mtime = latest_mtime
+
+    def _get_latest_subtask_issue(self, issue, url, key):
+        ''' Get latest subtask issue id.
+        '''
+
+        week_url = '/'.join([url, "issues", str(issue) + '.json?include=children'])
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Redmine-API-Key': key,
+        }
+        r = requests.get(week_url, headers=headers)
+        if r is None:
+            return None
+
+        if r.status_code != 200:
+            return None
+
+        subtasks = r.json()['issue']['children']
+        if len(subtasks) == 0:
+            return None
+
+        return subtasks[-1]['id']
+
+    def run(self):
+        # TODO: Get api_key from .api_key
+        _, url, key = get_current_redmine()
+        ri = RedmineHelper(url=url, key=key)
+
+        # Read issue number from config.py
+        wissue = get_current_redmine_week_report_issue()
+        if wissue is None:
+            return True
+
+        issue = self._get_latest_subtask_issue(wissue, url, key)
+        if issue is None:
+            return True
+
+        if ri.help_confirm_issue_number(issue) != 'y':
+            return True
+
+        if ri.help_ask_preview_issue() is True:
+            pnum, wname = get_current_redmine_preview()
+            # PREVIEW_WIKI_NAME, PREVIEW_PROJ_NUM
+            # should be imported without errors.
+            # These variables are used for the access temporary wiki page
+            # as a preview.
+            if pnum is None or wname is None:
+                print("No set PREVIEW_WIKI_NAME, PREVIEW_PROJ_NUM")
+                return None
+
+            url_path = 'redmine.piolink.com/projects/{}/wiki/{}'.format(
+                    pnum, wname)
+
+            url_addr = 'https://' + parse.quote(url_path)
+
+            webbrowser.open_new(url_addr)
+
+            # NamedTemporaryFile instance should have "delete" flag False.
+            # Because "help_user_input" uses the "delete" mode temp file.
+            tfile = tempfile.NamedTemporaryFile(suffix=".txt", delete=False)
+
+            t = Thread(target=self._preview_checker, args=(tfile.name, ri))
+            t.start()
+
+            # Load issue's description and open an interactive editor.
+            desc = ri.help_get_description(issue)
+            cnt = ri.help_user_input(desc.encode(), _temp=tfile)
+
+            # Removing the tempfile triggers to exit the thread.
+            os.unlink(tfile.name)
+            t.join()
+
+            ret = ri.help_ask_write_issue()
+            if not ret:
+                return True
+
+            # Show what you've edited.
+            print(cnt)
+            ri.help_update_description(issue, cnt)
+            return True
+
+        else:
+            try:
+                ri.help_edit_description(issue)
+            except:
+                print("Edit description Fail")
+                return True
+        return True

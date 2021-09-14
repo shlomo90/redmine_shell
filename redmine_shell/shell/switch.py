@@ -54,6 +54,17 @@ class Login(SingletonInstane):
 
         return config['PREVIEW_PROJ_NUM'], config['PREVIEW_WIKI_NAME']
 
+    def current_week_report_issue(self):
+        ''' Get Week Report Issue. '''
+
+        if self.login is None:
+            config = LOGIN[self.index]
+            self.login = config
+        else:
+            config = self.login
+
+        return config['WEEK_REPORT_ISSUE']
+
 
 def get_current_redmine():
     ''' Get current redmine login information. '''
@@ -67,6 +78,12 @@ def get_current_redmine_preview():
 
     login = Login.instance()
     return login.current_preview()
+
+def get_current_redmine_week_report_issue():
+    ''' Get current redmine week report issue information. '''
+
+    login = Login.instance()
+    return login.current_week_report_issue()
 
 
 def get_next_redmine():
