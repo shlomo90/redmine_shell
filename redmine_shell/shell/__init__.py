@@ -1,21 +1,29 @@
 """
-"Shell" is the class object of Redmine shell. When Rshell instance is
-constructed, The instance loads all hierarchy commands of Redmine shell.
-Each command has parent or child if it is. the definitions of commands,
-you can have a look at "__init__.py in "command" directories.
+"Shell" is an entry class of redmine_shell. The shell commands are loaded
+when it constructs a "Shell" instance. (See __init__)
 
-There are two command types: "CONTAINER", "EXECUTE".
-"CONTAINER" means its command must have at least one child. It serves
-similar commands as a group.
-"EXECUTE" means the command that can just execute a node function.
+Here are commands hiararchy. (order by my preference)
 
-Cursor class has information of where current shell command position is.
-Cursor remembers how many we get in the container commands or out.
-Cursor has a responsibility to lookup and walk commands.
+* issue
+** update_issue
+** read_issue
+** list_issue
+** list_journal
+** weekreport_issue (feature_open_weekreport)
+* wiki
+** update_wiki
+** read_wiki
+* review_page
+** new_review_page
+* todo
+** show_todo
+** show_todo_all
+** create_todo
+** edit_todo
+** remove_todo
 """
 
 
-import os
 import sys
 from redmine_shell.command import Root
 from redmine_shell.command.system import RedmineSystem
@@ -33,25 +41,19 @@ from .switch import get_current_redmine, get_next_redmine
 class Shell():
     """ The start entry Class. """
 
-    SYSTEM_COMMANDS = [("?", "Help Menu for Command Usage"),
-                       ("help", "Help Menu for Command Usage"),
-                       ("project", "Check current redmine's project list."),
-                       ("current", "Help Menu for Command Usage"),
-                       ("history", "Show history"),
-                       ("back", "Go back to previous menu"),
-                       ("clear", "Clear current terminal"),
-                       ("cls", "Clear current terminal"),
-                       ("exit", "Exit the program"),
-                       ("switch", "Switch the redmine setting"),
-                       ("home", "Go to home"), ]
-
     def __init__(self):
+        # Normal Commands
         self.root = Root("Root")
         self.root.load_children()
-        self.system = RedmineSystem("System")
+
+        # To help navigating
         self.cursor = Cursor(self.root)
 
-        # Connect shell
+        # System Commands
+        self.system = RedmineSystem("System")
+        self.system.load_children()
+
+        # Root, System commands connect to Shell
         self.root.connect_shell(self)
         self.system.connect_shell(self)
 
@@ -59,6 +61,7 @@ class Shell():
     def version_check(cls):
         """ Check current redmine_shell is updated or outdated. """
 
+        print("--------------------- Program Check -----------------------")
         helper = RedmineHelper(VERSION_CHECK_SERVER)
         data = helper.help_redmine(
             helper.wiki_page.get, "Wiki", project_id="test", timeout=3)
@@ -101,13 +104,10 @@ class Shell():
     def banner(self):
         """ Print Banner. """
 
-        print("--------------------- Program Check -----------------------")
-        self.version_check()
         print("")
-
         print("------------------------ BANNER ---------------------------")
         print(BANNER_WELCOME)
-        print("-----------------------------------------------------------")
+        print("")
 
     def execute_command(self, command):
         """ Execute specific command. """
@@ -136,22 +136,26 @@ class Shell():
             self.cursor.rollback()
         return
 
-    def do_shell(self):
+    def start(self):
         """ Start redmine shell. """
+        self.version_check()
         self.banner()
 
         try:
             while True:
-                curr = self.cursor.get_current()
-
                 exe_cmds = self.cursor.list_children()
+                # system commands doen't use Cursor.
                 sys_cmds = self.system.get_commands()
                 tot_cmds = exe_cmds + sys_cmds
 
                 try:
-                    name, _, _ = get_current_redmine()
-                    line = redmine_input("{}-{}> ".format(name, curr.name),
-                                         tot_cmds, history=True).strip()
+                    name = get_current_redmine()[0]   #0: name
+                    curr = self.cursor.get_current()
+                    line = redmine_input(
+                        "{}-{}> ".format(name, curr.name),
+                        tot_cmds, history=True
+                    ).strip()
+
                 # Ctrl-C : Send EOF.
                 except KeyboardInterrupt:
                     print("")
@@ -176,7 +180,11 @@ class Shell():
 
 
 class Cursor():
-    """ Cursor is a helper that points to an hierarchy command. """
+    """ Cursor class to help navigating commands.
+
+    Each command may have parents or children. Users can get in or out of
+    "container" type commands. Cursor provides some APIs to navigate them.
+    """
 
     def __init__(self, current):
         self.current = current
@@ -205,7 +213,7 @@ class Cursor():
         return children
 
     def list_children(self):
-        """ REturn the list of children commands. """
+        """ Return the list of children commands. """
 
         children = self.current.get_children()
         ret = []

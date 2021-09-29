@@ -1,23 +1,29 @@
 """
 Author: shlomo90
 
-"redmine_shell" is a shell program to edit a redmine server easily for
-CLI Command users. This program basically uses "python-redmine"
-module that is an APIs to communicate a redmine server by REST API.
-This program is also interactive and supports basic things of Bash shell."""
+redmine_shell is a program based on shell terminal.
+It helps easily to edit issues, wiki, etc. in your redmine server.
+If you are a heavy CLI terminal user (or vim?), This is the one
+you are looking for.
+"""
 
 
-import sys
-import redmine_shell.shell.config as config
 from redmine_shell.shell import Shell
 
 
 def debug_on():
-    if "debug" in sys.argv:
-        # config.DEBUG is singleton.
-        config.DEBUG = True
+    import sys
+    import redmine_shell.shell.config as config
+
+    if "debug" not in sys.argv:
+        return
+
+    # config.DEBUG is singleton.
+    config.DEBUG = True
 
 
 if __name__ == "__main__":
     debug_on()
-    Shell().do_shell()
+
+    redmine_shell = Shell()
+    redmine_shell.start()
