@@ -35,7 +35,7 @@ from .constants import (
 from .command import CommandType
 from .input import redmine_input
 from .helper import RedmineHelper
-from .switch import get_current_redmine, get_next_redmine
+from .switch import get_current_redmine, LoginError
 
 
 class Shell():
@@ -136,8 +136,29 @@ class Shell():
             self.cursor.rollback()
         return
 
+    def load_run_commands(self):
+        ''' Load "~/.redmine_shell_rc".
+
+        return:
+            (True, None): Load Success.
+            (False, "error message"): Load Failed and Reason.
+        '''
+
+        # Make singleton Login instance to load "~/.redmine_shell_rc" file.
+        try:
+            login = get_current_redmine()
+        except LoginError as le:
+            return False, le.args[0]
+
+        return True, None
+
     def start(self):
         """ Start redmine shell. """
+        result, err = self.load_run_commands()
+        if result is False:
+            print("ERR: {}".format(err))
+            self.cleanup()
+
         self.version_check()
         self.banner()
 
