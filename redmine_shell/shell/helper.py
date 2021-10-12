@@ -8,7 +8,7 @@ import subprocess
 import signal
 from redmine_shell.shell.config import DEFAULT_EDITOR
 from redmine_shell.shell.error import InputError
-from redminelib import Redmine
+from redminelib import Redmine, exceptions
 
 
 class RedmineHelper(Redmine):
@@ -185,7 +185,12 @@ class RedmineHelper(Redmine):
 
         from redmine_shell.shell.input import redmine_input
 
-        tmp_issue_ins = self.issue.get(issue)
+        try:
+            tmp_issue_ins = self.issue.get(issue)
+        except exceptions.ResourceNotFoundError:
+            print("Invalid issue number: out of range.")
+            return None
+
         answer = redmine_input(
             "[#{} {}] -> (y/n)".format(
                 tmp_issue_ins.id, tmp_issue_ins.subject))
