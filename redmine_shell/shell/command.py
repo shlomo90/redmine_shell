@@ -44,6 +44,13 @@ class Command():
 
     def connect_shell(self, shell):
         self.shell = shell
+        self._connect_cascade(shell)
+
+    def _connect_cascade(self, shell):
+        """ Load Children. """
+        children = self.CHILDREN
+        for child in children:
+            child.connect_shell(shell)
 
     def add_child(self, command):
         """ Set a command as a child. """

@@ -1,4 +1,4 @@
-''' Todo Commands. '''
+''' Script Commands. '''
 
 
 import os
@@ -7,17 +7,17 @@ import tempfile
 from redmine_shell.shell.switch import get_current_redmine
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.shell.input import redmine_input
-from redmine_shell.shell.constant import HOME_PATH, DATA_PATH
+from redmine_shell.shell.constants import HOME_PATH, DATA_PATH
 
 
-class TodoManager():
-    ''' Load todo files from /opt/redmine_shell.
+class ScriptManager():
+    ''' Load script files from /opt/redmine_shell.
 
     Tree:
     opt +
         +- redmine_shell +
                          + <key1> +
-                         |        + 1 <-- todo file
+                         |        + 1 <-- script file
                          |        + 2
                          + <key2> + 1
                                   + 2
@@ -32,40 +32,40 @@ class TodoManager():
         else:
             path = external_path
 
-        self.todo = {}
-        self.todo_key = key
-        self.todo_key_path = os.path.abspath('/'.join([path, key]))
-        self.todo_path = os.path.abspath(path)
+        self.script = {}
+        self.script_key = key
+        self.script_key_path = os.path.abspath('/'.join([path, key]))
+        self.script_path = os.path.abspath(path)
 
-        self._setup_todo_path()
-        self._load_todo()
+        self._setup_script_path()
+        self._load_script()
 
-    def _setup_todo_path(self):
-        ''' Setup the todo directories Tree. '''
+    def _setup_script_path(self):
+        ''' Setup the script directories Tree. '''
 
         try:
-            os.mkdir(self.todo_path)
+            os.mkdir(self.script_path)
         except FileExistsError:
             pass
 
         try:
-            os.mkdir(self.todo_key_path)
+            os.mkdir(self.script_key_path)
         except FileExistsError:
             pass
 
-    def _load_todo(self):
-        ''' Load Todos from the path. '''
+    def _load_script(self):
+        ''' Load Scripts from the path. '''
 
-        for dpath, dnames, _ in os.walk(self.todo_key_path):
+        for dpath, dnames, _ in os.walk(self.script_key_path):
             for dname in dnames:
                 try:
                     index = int(dname)
                 except ValueError:
                     continue
 
-                self.todo[index] = {}
+                self.script[index] = {}
                 path = '/'.join([dpath, str(index)])
-                self.todo[index]['path'] = path
+                self.script[index]['path'] = path
 
                 title_path = '/'.join([path, 'title'])
                 try:
@@ -73,7 +73,7 @@ class TodoManager():
                         title = file_obj.read().strip()
                 except FileNotFoundError:
                     title = ''
-                self.todo[index]['title'] = title
+                self.script[index]['title'] = title
 
                 memo_path = '/'.join([path, 'memo'])
                 try:
@@ -81,20 +81,20 @@ class TodoManager():
                         memo = file_obj.read()
                 except FileNotFoundError:
                     memo = ''
-                self.todo[index]['memo'] = memo
+                self.script[index]['memo'] = memo
 
             # Only walk one depth.
             break
 
     def create(self):
-        ''' Create Todo. '''
+        ''' Create Script. '''
 
-        if not self.todo:
+        if not self.script:
             idx = 1
         else:
-            idx = max(self.todo.keys()) + 1
+            idx = max(self.script.keys()) + 1
 
-        path = "/".join([self.todo_key_path, str(idx)])
+        path = "/".join([self.script_key_path, str(idx)])
         os.mkdir(path)
 
         title = redmine_input("Title: ").strip()
@@ -106,70 +106,93 @@ class TodoManager():
         print("Write done")
 
     def remove(self, idx):
-        ''' Remove Todo. '''
+        ''' Remove Script. '''
 
-        if int(idx) not in self.todo:
+        if int(idx) not in self.script:
             print("No Index Input")
             return
 
-        path = "/".join([self.todo_key_path, str(idx)])
+        path = "/".join([self.script_key_path, str(idx)])
         shutil.rmtree(path, ignore_errors=True)
 
-        del self.todo[int(idx)]
+        del self.script[int(idx)]
         print("Remove Done")
 
     def edit(self, idx):
-        ''' Edit Todo. '''
+        ''' Edit Script. '''
 
-        if int(idx) not in self.todo:
+        if int(idx) not in self.script:
             print("No Index Input")
             return
 
-        key_path = self.todo[int(idx)]['path']
+        key_path = self.script[int(idx)]['path']
         memo_path = '/'.join([key_path, 'memo'])
         os.system('vi {}'.format(memo_path))
         print("edit Done")
 
 
-class ShowTodo(Command):
-    ''' show_todo command. '''
-    name = "show_todo"
-    DESC = "show current todo"
+class RunScript(Command):
+    ''' show_script command. '''
+    name = "run_script"
+    DESC = "run the script"
 
     def _init_type(self):
         self.type = CommandType.EXECUTE
 
-    def run(self):
+    def run(self, args=None):
         _, _, key = get_current_redmine()
-        todo = TodoManager(key=key)
-        keys = sorted(todo.todo.keys())
-        print('=================================')
-        for k in keys:
-            data = todo.todo[k]
-            print("{}: {}".format(k, data['title']))
-            #print("{}".format(data['memo']))
-            if k == keys[-1]:
-                break
-            print('---------------------------------')
-        print('=================================')
+        script = ScriptManager(key=key)
+
+        try:
+            idx = redmine_input("Index to run?: ").strip()
+        except EOFError:
+            print("")
+            return True
+        except KeyboardInterrupt:
+            print("")
+            return True
+
+        if idx.isdigit() is False:
+            print("Error: Plz Input digital number!")
+            return True
+
+        try:
+            target = int(idx)
+            data = script.script[target]['memo']
+        except ValueError:
+            print("Error: Input script ID is invalid.")
+            return True
+        except KeyError:
+            print("Error: Input script ID is invalid.")
+            return True
+        except IndexError:
+            print("Error: Input script ID is invalid.")
+            return True
+
+        commands = data.strip().split('\n')
+        return self.batch(commands)
+
+    def batch(self, commands):
+        shell = self.shell
+        shell.batch(commands, True)
         return True
 
 
-class ShowTodoAll(Command):
-    ''' show_todo_all command. '''
-    name = "show_todo_all"
-    DESC = "Show the all todos"
+class ShowScriptAll(Command):
+    ''' show_script_all command. '''
+    name = "show_script_all"
+    DESC = "Show the all scripts"
 
     def _init_type(self):
         self.type = CommandType.EXECUTE
 
     def run(self):
         _, _, key = get_current_redmine()
-        todo = TodoManager(key=key)
-        keys = sorted(todo.todo.keys())
+        script = ScriptManager(key=key)
+        keys = sorted(script.script.keys())
         print('=================================')
         for k in keys:
-            data = todo.todo[k]
+            data = script.script[k]
             print("{}: {}".format(k, data['title']))
             print("{}".format(data['memo']))
             if k == keys[-1]:
@@ -179,32 +202,32 @@ class ShowTodoAll(Command):
         return True
 
 
-class CreateTodo(Command):
-    ''' create_todo command. '''
-    name = "create_todo"
-    DESC = "Create New Todo"
+class CreateScript(Command):
+    ''' create_script command. '''
+    name = "create_script"
+    DESC = "Create New Script"
 
     def _init_type(self):
         self.type = CommandType.EXECUTE
 
     def run(self):
         _, _, key = get_current_redmine()
-        todo = TodoManager(key=key)
-        todo.create()
+        script = ScriptManager(key=key)
+        script.create()
         return True
 
 
-class EditTodo(Command):
-    ''' edit_todo command. '''
-    name = "edit_todo"
-    DESC = "Edit the todo"
+class EditScript(Command):
+    ''' edit_script command. '''
+    name = "edit_script"
+    DESC = "Edit the script"
 
     def _init_type(self):
         self.type = CommandType.EXECUTE
 
     def run(self):
         _, _, key = get_current_redmine()
-        todo = TodoManager(key=key)
+        script = ScriptManager(key=key)
         try:
             idx = redmine_input("Index to edit?: ").strip()
         except EOFError:
@@ -218,21 +241,21 @@ class EditTodo(Command):
             print("Error: Plz Input digital number!")
             return True
 
-        todo.edit(int(idx))
+        script.edit(int(idx))
         return True
 
 
-class RemoveTodo(Command):
-    ''' remove todo command. '''
-    name = "remove_todo"
-    DESC = "Remove the todo"
+class RemoveScript(Command):
+    ''' remove script command. '''
+    name = "remove_script"
+    DESC = "Remove the script"
 
     def _init_type(self):
         self.type = CommandType.EXECUTE
 
     def run(self):
         _, _, key = get_current_redmine()
-        todo = TodoManager(key=key)
+        script = ScriptManager(key=key)
 
         try:
             idx = redmine_input("Index to remove?: ").strip()
@@ -247,5 +270,5 @@ class RemoveTodo(Command):
             print("Error: Plz Input digital number!")
             return True
 
-        todo.remove(int(idx))
+        script.remove(int(idx))
         return True

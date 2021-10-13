@@ -161,7 +161,9 @@ class Shell():
 
         self.version_check()
         self.banner()
+        self.interactive()
 
+    def interactive(self):
         try:
             while True:
                 exe_cmds = self.cursor.list_children()
@@ -193,6 +195,31 @@ class Shell():
         except KeyboardInterrupt:
             print("bye")
             self.cleanup()
+
+    def batch(self, commands, remember_cursor=False):
+        save_cursor = self.cursor.duplicate()
+
+        # Start from Root
+        self.cursor.goto_root()
+
+        try:
+            for cmd in commands:
+                exe_cmds = self.cursor.list_children()
+                # system commands doen't use Cursor.
+                sys_cmds = self.system.get_commands()
+                tot_cmds = exe_cmds + sys_cmds
+
+                name = get_current_redmine()[0]   #0: name
+                curr = self.cursor.get_current()
+                print("Run: {}".format(cmd))
+                self.execute_command(cmd)
+        except KeyboardInterrupt:
+            print("bye")
+            self.cleanup()
+
+        if remember_cursor is True:
+            self.cursor = save_cursor
+        return True
 
     def cleanup(self):
         """ Cleanup before shell close. """
@@ -281,17 +308,25 @@ class Cursor():
     def rollback(self, goto_root=False):
         """ Rollback the previous state after an executing command. """
 
-        def _goto_prev():
-            self.current = self.prev[-1]
-
-            # prev list must have one element at least.
-            if len(self.prev) == 1:
-                self.prev = self.prev
-            else:
-                self.prev = self.prev[:-1]
-
         if goto_root is True:
-            while len(self.prev) != 1:
-                _goto_prev()
+            self.goto_root()
         else:
-            _goto_prev()
+            self._goto_prev()
+
+    def goto_root(self):
+        while len(self.prev) != 1:
+            self._goto_prev()
+
+    def _goto_prev(self):
+        self.current = self.prev[-1]
+
+        # prev list must have one element at least.
+        if len(self.prev) == 1:
+            self.prev = self.prev
+        else:
+            self.prev = self.prev[:-1]
+
+    def duplicate(self):
+        ''' duplicate current cursor instance. '''
+        from copy import deepcopy
+        return deepcopy(self)

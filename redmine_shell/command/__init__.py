@@ -3,7 +3,7 @@
 Redmine Shell Menu commands consist of directories as like:
     - issue
     - review_page
-    - todo
+    - script
     - wiki
 
 When redmine shell starts to be loaded, Shell class instance loads the
@@ -14,7 +14,7 @@ Do load commands. """
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.command.issue import RedmineIssue
 from redmine_shell.command.review_page import RedmineReviewPage
-from redmine_shell.command.todo import RedmineTodo
+from redmine_shell.command.script import RedmineScript
 from redmine_shell.command.wiki import RedmineWiki
 
 
@@ -23,7 +23,7 @@ class Root(Command):
 
     CHILDREN = [RedmineIssue("issue"),
                 RedmineReviewPage("review_page"),
-                RedmineTodo("todo"),
+                RedmineScript("script"),
                 RedmineWiki("wiki"), ]
 
     def _init_type(self):
