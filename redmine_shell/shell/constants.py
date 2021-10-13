@@ -1,6 +1,7 @@
 """ All Constants variables. """
 
 
+import os
 from redmine_shell.shell.config import VERSION
 
 
@@ -49,3 +50,6 @@ TEMPLATE_CONTENT = """# Write down "내용" part with redmine textile syntax.
 
 BANNER_WELCOME = """Hello! It's redmine_shell ({version}).
 Thanks.""".format(version=VERSION)
+
+HOME_PATH = os.getenv('HOME')
+DATA_PATH = HOME_PATH + '/.redmine_shell'

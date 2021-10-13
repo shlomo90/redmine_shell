@@ -7,10 +7,7 @@ import tempfile
 from redmine_shell.shell.switch import get_current_redmine
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.shell.input import redmine_input
-
-
-HOME_PATH = os.getenv('HOME')
-BOOKMARK_PATH = HOME_PATH + '/.redmine_shell'
+from redmine_shell.shell.constant import HOME_PATH, DATA_PATH
 
 
 class TodoManager():
@@ -31,7 +28,7 @@ class TodoManager():
             raise KeyError("Redmine API Key must exists.")
 
         if external_path is None:
-            path = BOOKMARK_PATH
+            path = DATA_PATH
         else:
             path = external_path
 
