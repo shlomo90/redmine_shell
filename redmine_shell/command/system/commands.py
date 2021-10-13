@@ -7,9 +7,10 @@ from redmine_shell.shell.switch import get_current_redmine, get_next_redmine
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.shell.helper import RedmineHelper
 from redmine_shell.shell.singleton import SingletonInstane
+from redmine_shell.shell.constants import DATA_PATH, HOME_PATH
+import pyperclip3 as pc
 
 
-HOME_PATH = os.getenv('HOME')
 HISTORY_PATH = HOME_PATH + '/.redmine_shell/history'
 
 
@@ -163,3 +164,25 @@ class ListProject(Command):
         text = '\n'.join(lines)
         ri.help_user_input(text.encode())
         print(text)
+
+class CopyScript(Command):
+    ''' Copy the script in clipboard. '''
+    DESC = "Copy the script in clipboard."
+
+    def _init_type(self):
+        self.type = CommandType.EXECUTE
+
+    def run(self, shell):
+        from redmine_shell.shell.input import redmine_input
+        script = redmine_input("script: ").strip()
+        _, url, key = get_current_redmine()
+        path = os.path.abspath('/'.join([DATA_PATH, key, script, 'memo']))
+        if os.path.exists(path) is False:
+            print("No script")
+            return True
+
+        with open(path, 'r') as f:
+            data = f.read()
+
+        pc.copy(data)
+        print("Copy Done!")
