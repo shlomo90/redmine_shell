@@ -9,7 +9,7 @@
 
 ## Install
 
-1. Create a virtual environment. `python -m venv ./redmine`
+1. Create a virtual environment. `python3 -m venv ./redmine`
 2. Activate the virtual environment. `. ./redmine/bin/activate`
 3. Install "redmine_shell". `python ./setup.py install`
 4. Create "~/.redmine_shell_rc" file
@@ -17,15 +17,22 @@
 {
     "your_name": {
         "URL": "http://your.redmine.server.com",
-        "KEY": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",  #<-- your redmine key
-        "PREVIEW_PROJ_NUM": null,   #optional
-        "PREVIEW_WIKI_NAME": null,  #optional
-        "PREVIEW_PROJ_NUM": null,   #optional
-        "PREVIEW_WIKI_NAME": null,  #optional
-        "WEEK_REPORT_ISSUE": null   #optional
+        "KEY": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "PREVIEW_PROJ_NUM": null,
+        "PREVIEW_WIKI_NAME": null,
+        "WEEK_REPORT_ISSUE": null
     }
 }
 ```
+* Elements
+    * "your_name": Renaming "your_name" for your redmine. This will show on a shell prompt.
+    * "URL": Your redmine server URL.
+    * "KEY": Your Redmine API Key.
+    * "PREVIEW_PROJ_NUM": Experimental.
+    * "PREVIEW_PROJ_NAME": Experimental.
+    * "PREVIEW_PROJ_NUM": Experimental.
+    * "WEEK_REPORT_ISSUE": Experimental.
+
 5. Run "redmine_shell". `./start.sh`
 
 
