@@ -313,7 +313,12 @@ class WeekReportIssue(Command):
             'Content-Type': 'application/json',
             'X-Redmine-API-Key': key,
         }
-        r = requests.get(week_url, headers=headers)
+
+        session = requests.Session()
+        # TODO: print gracefully warning message.
+        session.verify = False
+
+        r = session.get(week_url, headers=headers)
         if r is None:
             return None
 
