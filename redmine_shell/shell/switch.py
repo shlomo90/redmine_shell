@@ -48,6 +48,9 @@ class Login(SingletonInstane):
             raise LoginError("No redmine_shell_rc file.")
         except FileNotFoundError:
             raise LoginError("No redmine_shell_rc file.")
+        except json.decoder.JSONDecodeError as e:
+            raise LoginError("Decoding redmine_shell_rc file Error: {}".format(
+                e))
 
         if not rc:
             raise LoginError("No data in redmine_shell_rc file.")
