@@ -1,0 +1,57 @@
+Redmine supports "rest api" function. To implement the redmine batch mode, First, we need a third party module "json-c"
+because it needs to parse the json data from a redmine server. 
+
+
+Second, It needs a client socket program.
+ 
+
+
+The Example of requesting projects to redmine server.
+
+URL     : /projects.json
+Query   : key= user_key_info
+          limit= 90
+          offset= 100
+
+Headers
+    Host: IP
+    Accept-Encoding: identity
+    User-Agent: My definition.
+
+We can see more information from "https://www.redmine.org/projects/redmine/wiki/rest_api"
+The following is an tcpdump data of requests and responses by using "redmine_python".
+
+
+12:12:37.170221 IP (tos 0x0, ttl 64, id 50270, offset 0, flags [DF], proto TCP (6), length 233)
+    192.168.226.180.47474 > 192.168.201.144.80: Flags [P.], cksum 0x2e72 (incorrect -> 0xa25c), seq 181:362, ack 32367
+, win 501, options [nop,nop,TS val 3277023549 ecr 481263725], length 181: HTTP, length: 181
+	GET /projects.json?key=453b4a3155f6555ee403838de7dabe50638d7fff&limit=90&offset=100 HTTP/1.1
+	Host: 192.168.201.144
+	Accept-Encoding: identity
+	User-Agent: python-urllib3/1.26.7
+
+
+	HTTP/1.1 200 OK
+	Content-Type: application/json; charset=utf-8
+	Transfer-Encoding: chunked
+	Connection: keep-alive
+	Status: 200 OK
+	X-UA-Compatible: IE=Edge,chrome=1
+	ETag: "eba7b12ec0db900dfcb0b5f339fa89d6"
+	Cache-Control: max-age=0, private, must-revalidate
+	X-Request-Id: 9569c531e0dbb4fb94d1db85f6babbfa
+	X-Runtime: 0.417865
+	Date: Thu, 06 Jan 2022 03:12:37 GMT
+	X-Rack-Cache: miss
+	X-Powered-By: Phusion Passenger 4.0.50
+	Server: nginx/1.19.2 + Phusion Passenger 4.0.50
+	
+	3e87
+	{
+    "projects":[
+        {
+            "id":225,
+            "name":"AV2 \uc0ac\uc774\ud2b8",
+            "identifier":"av2-site",
+            "description":"","parent":{"id":77,"name":"AV2"},"status":1,"created_on":"2020-01-29T02:42:37Z","updated_on":"2020-01-29T02:42:37Z"},{"id":83,"name":"IPv6","identifier":"ipv6","description":"IPv6 \ub124\ud2b8\uc6cc\ud06c\uc5d0 \ub300\ud55c \uc6f9\ubc29\ud654\ubcbd \uae30\ub2a5 \uc9c0\uc6d0","parent":{"id":8,"name":"WEBFRONT"},"status":1,"created_on":"2011-02-09T11:06:37Z","updated_on":"2011-02-09T11:06:37Z"},{"id":93,"name":"WEBFRONT \ud488\uc9c8 \uac1c\uc120","identifier":"webfront-npr","description":"h2. WEBFRONT \ud488\uc9c8 \uac1c\uc120\uc744 \uc704\ud55c \ud504\ub85c\uc81d\ud2b8\r\n\r\n2011\ub144 NPR \uc9c0\uc218\uac00 NI \r\nWEBFRONT\uc758 \ud488\uc9c8 \uc0c1\ud0dc\uac00 \ub9e4\ub144 \uac1c\uc120\ub418\ub294 \ubaa8\uc2b5\uc744 \ubcf4\uc774\uc9c0 \ubabb\ud558\uace0 \uc788\ub2e4. \r\n\r\n\ud488\uc9c8 \uac1c\uc120\uc744 \uc704\ud55c \uc811\uadfc \ubc29\ubc95\uc774 \uae30\uc874\uc5d0\ub294 \ubb38\uc81c \ubc1c\uc0dd\uc2dc \ubb38\uc81c \ud574\uacb0\uc774\uc5c8\uc9c0\ub9cc, \r\n\ubb38\uc81c\uac00 \ubc1c\uc0dd\ud558\uae30 \uc804\uc5d0 \ubb38\uc81c\ub97c \ud574\uacb0\ud558\ub294 \uc801\uadf9\uc801\uc778 \ubc29\ubc95\uc774 \ud544\uc694\ud558\ub2e4. \r\n\r\n\uc774 \ud504\ub85c\uc81d\ud2b8\ub294 EBFRONT\uc758 \ud488\uc9c8 \uac1c\uc120\uc744 \uc704\ud574 \uc9c4\ud589\ub418\ub294 \ud504\ub85c\uc81d\ud2b8 \uc774\ub2e4. \r\n\r\n","parent":{"id":8,"name":"WEBFRONT"},"status":1,"created_on":"2011-12-19T09:08:58Z","updated_on":"2012-02-07T01:05:19Z"},{"id":75,"name":"\ubbf8\ub7ec\ub9c1\ud0d0\uc9c0\ubaa8\ub4dc","identifier":"full-proxy","description":"SK \ube0c\ub85c\ub4dc\ubc34\ub4dc\uc0ac\uc758 \uc694\uccad.\r\nPacket Mirroring\uc744 \ud1b5\ud574 \ub4e4\uc5b4\uc628 \ud328\ud0b7\uc5d0 \ub300\ud55c \ubcf4\uc548 \uac80\uc0ac\ud6c4 Log\ub97c \ucd9c\ub825\ud558\ub294 \uae30\ub2a5.\r\n\uad6c\uccb4\uc801\uc778 SRS\ub294 \ubbf8\ud305\uc744 \ud1b5\ud574 \uc218\uc9d1\ud560 \ud544\uc694\uac00 \uc788\uc74c.\r\n\r\n\uc644\ub8cc \uc77c\uc815 : 2011-06","parent":{"id":8,"name":"WEBFRONT"},"status":1,"created_on":"2010-12-09T01:50:18Z","updated_on":"2011-03-17T06:39:13Z"},{"id":133,"name":"CC","identifier":"webfront-cc","description":"","parent":{"id":8,"name":"WEBFRONT"},"status":1,"created_on":"2014-01-13T05:18:37Z","updated_on":"2014-01-13T05:18:37Z"},{"id":67,"name":"WEBFRONT \ub9e4\ub274\uc5bc \uac1c\ubc1c","identifier":"miny","description":"WEBFRONT \ub9e4\ub274\uc5bc \uac1c\ubc1c","parent":{"id":8,"name":"WEBFRONT"},"status":1,"created_on":"2010-09-13T06:03:51Z","updated_on":"2010-09-13T06:03:51Z"},{"id":102,"name":"WEBFRONT-K","identifier":"webfront-k","description":"WEBFRONT-K","status":1,"created_on":"2012-04-03T09:10:31Z","updated_on":"2012-04-03T09:10:31Z"},{"id":228,"name":"ALPS","identifier":"alps","description":"* WEBFRONT-K \ucc28\uc138\ub300 GUI\ub97c \uac1c\ubc1c\ud558\uae30 \uc704\ud55c API \ubc0f GUI \ud504\ub85c\uc81d\ud2b8 \uc785\ub2c8\ub2e4. ","parent":{"id":102,"name":"WEBFRONT-K"},"status":1,"created_on":"2020-02-10T01:03:41Z","updated_on":"2020-02-10T04:33:58Z"},{"id":252,"name":"WAAP TF","identifier":"webfront-k-waap-tf","description":"WAAP : Web Application AN API Protection \r\n\uc6f9\ubc29\ud654\ubcbd \uacbd\uc7c1\ub825 \uac15\ud654\ub97c \uc704\ud55c TF \ud504\ub85c\uc81d\ud2b8","parent":{"id":102,"name":"WEBFRONT-K"},"status":1,"created_on":"2021-11-18T04:07:27Z","updated_on":"2021-11-18T04:34:32Z"},{"id":185,"name":"WEBFRONT-K Performance","identifier":"wf-k-performance","description":"WEBFRONT-K \ub0b4\ubd80 \ub610\ub294 \uc678\ubd80\uc5d0\uc11c \uce21\uc815\ub41c \uc131\ub2a5\uacfc \uad00\ub828\ub41c \ud504\ub85c\uc81d\ud2b8 \uc785\ub2c8\ub2e4. ","parent":{"id":102,"name":"WEBFRONT-K"},"status":1,"created_on":"2017-07-11T01:11:40Z","updated_on":"2021-03-24T08:46:25Z"},{"id":237,"name":"WEBFRONT-K SA","identifier":"webfront-k-se","description":"","parent":{"id":102,"name":"WEBFRONT-K"},"status":1,"created_on":"2020-12-02T06:34:39Z","updated_on":"2020-12-02T06:38:13Z"},{"id":135,"name":"WEBFRONT-K \uc0ac\uc774\ud2b8","identifier":"webfront-k-site","description":"","parent":{"id":102,"name":"WEBFRONT-K"},"status":1,"created_on":"2014-01-20T05:57:27Z","updated_on":"2014-01-20T05:57:27Z"},{"id":194,"name":"WEBFRONT-K \uc778\uc99d(CC,GS)","identifier":"2018_wfk_cc","description":"","parent":{"id":102,"name":"WEBFRONT-K"},"status":1,"created_on":"2018-08-17T00:10:24Z","updated_on":"2021-03-31T01:24:05Z"},{"id":130,"name":"\uc2dc\uadf8\ub2c8\ucc98","identifier":"sig","description":"WEBFRONT//WEBFRONT-K \ubcf4\uc548 \uae30\ub2a5\uc5d0 \uc0ac\uc6a9\ub418\ub294 \uc2dc\uadf8\ub2c8\ucc98 \uad00\ub9ac \ud504\ub85c\uc81d\ud2b8","parent":{"id":102,"name":"WEBFRONT-K"},"status":1,"created_on":"2013-12-09T00:30:06Z","updated_on":"2013-12-09T00:30:06Z"},{"id":90,"name":"\uae30\uc220\uc9c0\uc6d0","identifier":"piolink-tac","description":"\uae30\uc220\uc9c0\uc6d0 \uc0ac\ud56d\uc5d0 \ub300\ud574 \uad00\ub9ac\ud558\ub294 \ud504\ub85c\uc81d\ud2b8","status":1,"created_on":"2011-08-19T04:22:13Z","updated_on":"2011-08-19T04:22:13Z"},{"id":165,"name":"\ubcf4\uc548\ucde8\uc57d\uc810","identifier":"site-security","description":"\ubcf4\uc548\ucde8\uc57d\uc810 \ub300\uc751 \ud504\ub85c\uc81d\ud2b8","status":1,"created_on":"2015-10-29T06:06:56Z","updated_on [|http]
+
