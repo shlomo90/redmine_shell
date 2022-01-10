@@ -41,14 +41,13 @@
 extern char *optarg;
 
 struct params {
-    char    *host;
-    char    *key;
+    str_t    host;
+    str_t    key;
 };
 
 int parse_params(struct params *p, int argc, char* argv[])
 {
     int      opt;
-    char    *host, *key;
 
     /*
      * "h:" -h argument
@@ -65,18 +64,20 @@ int parse_params(struct params *p, int argc, char* argv[])
         switch (opt) {
         case 'h':
             // host and port.
-            p->host = optarg;
+            p->host.data = optarg;
+            p->host.len = strlen(optarg);
             break;
         case 'k':
             // key
-            p->key = optarg;
+            p->key.data = optarg;
+            p->key.len = strlen(optarg);
             break;
         default:
             return -EINVAL_PARAM;
         }
     }
 
-    if (p->key == NULL || p->host == NULL) {
+    if (p->key.len == 0 || p->host.len == 0) {
         return -EMIN_PARAM;
     }
 
