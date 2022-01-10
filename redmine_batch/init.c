@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include "common.h"
 #include <unistd.h>
 
 /**
@@ -58,8 +58,7 @@ int parse_params(struct params *p, int argc, char* argv[])
      */
 
     if (argc == 1) {
-        fprintf(stderr, "Empty Params.\n");
-        return -1;
+        return -EEMPTY_PARAM;
     }
 
     while ((opt = getopt(argc, argv, "h:k:")) != -1) {
@@ -67,16 +66,18 @@ int parse_params(struct params *p, int argc, char* argv[])
         case 'h':
             // host and port.
             p->host = optarg;
-            printf("DEBUG: -h\n");
             break;
         case 'k':
             // key
             p->key = optarg;
-            printf("DEBUG: -k\n");
+            break;
         default:
-            fprintf(stderr, "Invalid Parameter.\n");
-            return -1;
+            return -EINVAL_PARAM;
         }
+    }
+
+    if (p->key == NULL || p->host == NULL) {
+        return -EMIN_PARAM;
     }
 
     return 0;
@@ -98,8 +99,14 @@ int validate_params(struct params *p)
 int main(int argc, char* argv[])
 {
     struct params   p;
-    int             i;
+    int             rc;
 
-    i = parse_params(&p, argc, argv);
+    memset(&p, 0, sizeof(struct params));
+    rc = parse_params(&p, argc, argv);
+    if (rc != OK) {
+        fprintf(stderr, "%s\n", get_error_message(rc));
+        return rc;
+    }
+
     return 0;
 }
