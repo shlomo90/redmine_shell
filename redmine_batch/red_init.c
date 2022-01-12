@@ -40,12 +40,7 @@
 
 extern char *optarg;
 
-struct params {
-    red_str_t    host;
-    red_str_t    key;
-};
-
-int parse_params(struct params *p, int argc, char* argv[])
+int parse_params(red_init_param_t *p, int argc, char* argv[])
 {
     int      opt;
 
@@ -84,7 +79,7 @@ int parse_params(struct params *p, int argc, char* argv[])
     return INIT_OK;
 }
 
-int validate_params(struct params *p)
+int validate_params(red_init_param_t *p)
 {
     /*
      * Validate Host and Port number.
@@ -98,10 +93,10 @@ int validate_params(struct params *p)
 
 int main(int argc, char* argv[])
 {
-    struct params   p;
-    int             rc;
+    red_init_param_t   p;
+    int                 rc;
 
-    memset(&p, 0, sizeof(struct params));
+    memset(&p, 0, sizeof(red_init_param_t));
     rc = parse_params(&p, argc, argv);
     if (rc != INIT_OK) {
         fprintf(stderr, "%s\n", get_error_message(rc));

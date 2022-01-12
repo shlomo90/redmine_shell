@@ -7,6 +7,7 @@
 
 #include "red_error.h"
 #include "red_string.h"
+#include "red_init.h"
 
 //
 enum red_boolean {
