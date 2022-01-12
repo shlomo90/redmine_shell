@@ -1,5 +1,5 @@
 // include error.h
-#include "common.h"
+#include "red_common.h"
 
 static char *error_messages[] = {
     "Everything is fine.",
@@ -19,7 +19,7 @@ char* get_error_message(int errno)
     }
 
     errno *= -1;
-    if (errno > ERROR_MAX) {
+    if (errno > INIT_ERROR_MAX) {
         return NULL;
     }
 

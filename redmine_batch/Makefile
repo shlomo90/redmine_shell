@@ -1,20 +1,18 @@
 CC=gcc
 CFLAGS=-g
-PROG=init
-DEP=common.h
+PROG=red_init
+DEP=red_common.h
 
-all: $(PROG)
+all:	$(PROG)
 
-$(PROG): init.o error.o
+$(PROG):		red_init.o red_error.o
 	$(CC) $(CFLAGS) $? -o $@
 
-init.o:	init.c
+red_init.o:		red_init.c
 	$(CC) $(CFLAGS) -c $^
 
-error.o: error.c
+red_error.o:	red_error.c
 	$(CC) $(CFLAGS) -c $^
-
--include $(DEP)
 
 clean:
 	rm *.o

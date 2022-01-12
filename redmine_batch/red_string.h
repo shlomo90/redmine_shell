@@ -1,12 +1,11 @@
-#ifndef __string_h__
-#define __string_h__
+#ifndef __RED_STRING_H__
+#define __RED_STRING_H__
 
-
-struct str_s {
+struct red_str_s {
     int      len;
     char    *data;
 };
 
-typedef struct str_s str_t;
+typedef struct red_str_s red_str_t;
 
 #endif

@@ -1,5 +1,5 @@
-#include "common.h"
 #include <unistd.h>
+#include "red_common.h"
 
 /**
  * socket programming.
@@ -41,8 +41,8 @@
 extern char *optarg;
 
 struct params {
-    str_t    host;
-    str_t    key;
+    red_str_t    host;
+    red_str_t    key;
 };
 
 int parse_params(struct params *p, int argc, char* argv[])
@@ -57,7 +57,7 @@ int parse_params(struct params *p, int argc, char* argv[])
      */
 
     if (argc == 1) {
-        return -EEMPTY_PARAM;
+        return -INIT_EEMPTY_PARAM;
     }
 
     while ((opt = getopt(argc, argv, "h:k:")) != -1) {
@@ -73,15 +73,15 @@ int parse_params(struct params *p, int argc, char* argv[])
             p->key.len = strlen(optarg);
             break;
         default:
-            return -EINVAL_PARAM;
+            return -INIT_EINVAL_PARAM;
         }
     }
 
     if (p->key.len == 0 || p->host.len == 0) {
-        return -EMIN_PARAM;
+        return -INIT_EMIN_PARAM;
     }
 
-    return 0;
+    return INIT_OK;
 }
 
 int validate_params(struct params *p)
@@ -96,7 +96,6 @@ int validate_params(struct params *p)
     return 0;
 }
 
-
 int main(int argc, char* argv[])
 {
     struct params   p;
@@ -104,7 +103,7 @@ int main(int argc, char* argv[])
 
     memset(&p, 0, sizeof(struct params));
     rc = parse_params(&p, argc, argv);
-    if (rc != OK) {
+    if (rc != INIT_OK) {
         fprintf(stderr, "%s\n", get_error_message(rc));
         return rc;
     }
