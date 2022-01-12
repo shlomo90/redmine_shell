@@ -6,6 +6,6 @@
 #include <string.h>
 
 #include "error.h"
-#include "string.h"
+#include "red_string.h"
 
 #endif
