@@ -11,7 +11,7 @@
  *      RED_OK
  *      RED_FAIL
  */
-int init_server_conf(redmine_server_conf_t *conf, red_init_param_t *init)
+int init_server_conf(red_server_conf_t *conf, red_init_param_t *init)
 {
     red_init_param_t   *source = NULL;
 
@@ -24,13 +24,13 @@ int init_server_conf(redmine_server_conf_t *conf, red_init_param_t *init)
     return RED_OK;
 }
 
-int save_server_conf(redmine_server_conf_t *conf)
+int save_server_conf(red_server_conf_t *conf)
 {
     return 0;
 }
 
 // 현 디렉토리의 .redmine 디렉토리를 참조하거나, source 를 참조
-// int save_server_conf(redmine_server_conf_t *conf);
+// int save_server_conf(red_server_conf_t *conf);
 
 
 // TODO
