@@ -40,7 +40,7 @@
 
 extern char *optarg;
 
-int parse_params(red_init_param_t *p, int argc, char* argv[])
+static int parse_params(red_init_param_t *p, int argc, char* argv[])
 {
     int      opt;
 
@@ -79,21 +79,9 @@ int parse_params(red_init_param_t *p, int argc, char* argv[])
     return INIT_OK;
 }
 
-int validate_params(red_init_param_t *p)
-{
-    /*
-     * Validate Host and Port number.
-     *
-     * Constraints: IP only.
-     */
-
-    //p->host
-    return 0;
-}
-
 int main(int argc, char* argv[])
 {
-    red_init_param_t   p;
+    red_init_param_t    p;
     int                 rc;
 
     memset(&p, 0, sizeof(red_init_param_t));
