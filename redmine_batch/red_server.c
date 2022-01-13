@@ -1,6 +1,38 @@
 #include "red_common.h"
 #include "red_server.h"
 
+
+int try_connect(red_init_param_t *p)
+{
+    int                 sock, rc;
+    struct sockaddr_in  in;
+
+    sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sock == -1) {
+        return RED_FAIL;
+    }
+
+    memset(&in, 0, sizeof(struct sockaddr_in));
+    in.sin_family = AF_INET;
+    // FIXME: get the port from user.
+    in.sin_port = htons(11443);
+    if (inet_pton(AF_INET, p->host.data, &in.sin_addr) == -1) {
+        perror("inet_pton");
+        goto close_socket;
+    }
+
+    rc = connect(sock, (struct sockaddr*) &in, sizeof(struct sockaddr_in));
+    if (rc == -1) {
+        // TODO: Close socket.
+        goto close_socket;
+    }
+
+    return RED_OK;
+close_socket:
+    close(sock);
+    return RED_FAIL;
+}
+
 /*
  * @conf: the variable to be initialized.
  * @source: the data of command 'init' parameters.

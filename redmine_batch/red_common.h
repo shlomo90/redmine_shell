@@ -2,8 +2,10 @@
 #define __COMMON_H__
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "red_error.h"
 #include "red_string.h"
@@ -14,6 +16,9 @@
 // Need to get conf of user terminal configuration before building.
 // (ex: getconf MAX_ARG)
 #define MAX_LINE    1048576
+
+// Normal text file buffer size.
+#define MAX_BUF     1024 * 1024
 
 enum red_boolean {
     RED_FALSE = 0,
