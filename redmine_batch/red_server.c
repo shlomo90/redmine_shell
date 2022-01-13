@@ -13,14 +13,13 @@
  */
 int init_server_conf(red_server_conf_t *conf, red_init_param_t *init)
 {
-    red_init_param_t   *source = NULL;
-
     if (init == NULL) {
-        // lookup current directory's '.redmine'.
-    } else {
-        source = init;
+        // TODO: lookup current directory's '.redmine'.
+        return RED_FAIL;
     }
 
+    conf->host = init->host;
+    conf->key = init->key;
     return RED_OK;
 }
 

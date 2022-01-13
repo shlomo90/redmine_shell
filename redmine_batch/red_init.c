@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include "red_common.h"
+#include "red_server.h"
 
 /**
  * socket programming.
@@ -83,12 +84,18 @@ int main(int argc, char* argv[])
 {
     red_init_param_t    p;
     int                 rc;
+    red_server_conf_t   conf;
 
     memset(&p, 0, sizeof(red_init_param_t));
     rc = parse_params(&p, argc, argv);
     if (rc != INIT_OK) {
         fprintf(stderr, "%s\n", get_error_message(rc));
         return rc;
+    }
+
+    rc = init_server_conf(&conf, &p);
+    if (rc != RED_OK) {
+        fprintf(stderr, "server error.\n")
     }
 
     return 0;
