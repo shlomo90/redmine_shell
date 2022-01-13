@@ -5,7 +5,7 @@ DEP=red_common.h
 
 all:	$(PROG)
 
-$(PROG):		red_init.o red_error.o red_server.o red_file.o
+$(PROG):		red_init.o red_error.o red_server.o red_file.o red_conf.o
 	$(CC) $(CFLAGS) $? -o $@
 
 red_init.o:		red_init.c
@@ -18,6 +18,9 @@ red_server.o:	red_server.c
 	$(CC) $(CFLAGS) -c $^
 
 red_file.o:		red_file.c
+	$(CC) $(CFLAGS) -c $^
+
+red_conf.o:		red_conf.c
 	$(CC) $(CFLAGS) -c $^
 
 clean:
