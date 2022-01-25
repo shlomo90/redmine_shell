@@ -254,3 +254,13 @@ class RedmineHelper(Redmine):
     def help_execute(self):
         """ Execute command. """
         raise NotImplementedError("function: help_execute not implemented")
+
+    def help_create_issue(self, pid):
+        default_issue = {
+            'project_id': pid,
+            'subject': "No Subject (created by redmine_shell)",
+            'description': "Fill the description."}
+            #'tracker_id': bug or manage or ...blah
+            #'status_id': solved? new?
+        resource = self.issue.create(**default_issue)
+        return resource

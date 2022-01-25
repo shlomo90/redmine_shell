@@ -30,7 +30,22 @@ class CreateIssue(Command):
         self.type = CommandType.EXECUTE
 
     def run(self):
-        print("{}: Not Implemented Yet!".format(self.name))
+        # Just create Redmine Issue with project ID.
+        # Rest configurations will be updated by "edit_issue"
+        _, url, key = get_current_redmine()
+        ri = RedmineHelper(url=url, key=key)
+        pid = ri.help_ask_project_number()
+        if pid is None:
+            return True
+
+        # TODO: Need to ask user id (Assigned_ID)
+
+        issue = ri.help_create_issue(pid)
+        try:
+            ri.help_edit_description(issue.id)
+        except:
+            print("Edit description Fail")
+            return True
         return True
 
 
