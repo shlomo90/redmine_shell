@@ -4,7 +4,7 @@ from redmine_shell.command.review_page.commands import (
     NewReviewPage, UpdateReviewPage)
 from redmine_shell.command.system.commands import (
     Help, ListProject, Question, Current, History, Back, Clear, Cls, Exit,
-    Switch, Home, CopyScript)
+    Switch, Home, CopyScript, ListTracker, ListAssignUser)
 
 
 COMMAND = [
@@ -19,7 +19,9 @@ COMMAND = [
     Switch("switch"),
     Home("home"),
     ListProject("project"),
-    CopyScript("copyscript"), ]
+    CopyScript("copyscript"),
+    ListTracker("tracker"),
+    ListAssignUser("user"), ]
 
 
 class RedmineSystem(Command):

@@ -156,14 +156,72 @@ class ListProject(Command):
     def run(self, shell):
         _, url, key = get_current_redmine()
         ri = RedmineHelper(url=url, key=key)
+        lines = self.get_project_lines(ri)
+        text = '\n'.join(lines)
+        ri.help_user_input(text.encode())
+        print(text)
+
+    @classmethod
+    def get_project_lines(cls, ri):
         lines = ["pid: project name", "---+----------------"]
         for project in ri.project.all():
             pid = project.id
             pname = project.name
             lines.append("{: >3}: {}".format(pid, pname))
+        return lines
+
+
+class ListTracker(Command):
+    ''' List Tracker Command. '''
+    DESC = "Check current redmine's Tracker list."
+
+    def _init_type(self):
+        self.type = CommandType.EXECUTE
+
+    def run(self, shell):
+        _, url, key = get_current_redmine()
+        ri = RedmineHelper(url=url, key=key)
+        lines = self.get_tracker_lines(ri)
         text = '\n'.join(lines)
         ri.help_user_input(text.encode())
         print(text)
+        return text
+
+    @classmethod
+    def get_tracker_lines(cls, ri):
+        lines = ["tid: tracker name", "---+----------------"]
+        for tracker in ri.tracker.all():
+            tid = tracker.id
+            tname = tracker.name
+            lines.append("{: >3}: {}".format(tid, tname))
+        return lines
+
+
+class ListAssignUser(Command):
+    ''' List Assign Users Command. '''
+    DESC = "Check current redmine's Assigned Users list."
+
+    def _init_type(self):
+        self.type = CommandType.EXECUTE
+
+    def run(self, shell):
+        _, url, key = get_current_redmine()
+        ri = RedmineHelper(url=url, key=key)
+        lines = self.get_user_lines(ri)
+        text = '\n'.join(lines)
+        ri.help_user_input(text.encode())
+        print(text)
+        return text
+
+    @classmethod
+    def get_user_lines(cls, ri):
+        lines = ["Ass: User name", "---+----------------"]
+        for user in ri.user.all():
+            uid = user.id
+            uname = "{} {}".format(user.firstname, user.lastname)
+            lines.append("{: >3}: {}".format(uid, uname))
+        return lines
+
 
 class CopyScript(Command):
     ''' Copy the script in clipboard. '''

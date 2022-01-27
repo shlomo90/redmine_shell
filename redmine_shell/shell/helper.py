@@ -102,9 +102,13 @@ class RedmineHelper(Redmine):
         desc = self.issue.get(issue).description
         return desc
 
+    def help_update_field(self, issue, **kwargs):
+        return self.issue.update(issue, **kwargs)
+
     def help_update_description(self, issue, desc):
         """ Wrapper of updating issue's description. """
-        return self.issue.update(issue, description=desc)
+        kwargs = {'description': desc}
+        return self.help_update_field(issue, **kwargs)
 
     def help_edit_description(self, issue):
         """ Edit description by using editor. """
@@ -264,3 +268,6 @@ class RedmineHelper(Redmine):
             #'status_id': solved? new?
         resource = self.issue.create(**default_issue)
         return resource
+
+    def help_get_issue_instance(self, issue):
+        return self.issue.get(issue)
