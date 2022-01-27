@@ -4,7 +4,7 @@
 from redmine_shell.shell.config import DEBUG
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.command.issue.commands import (ListIssue, CreateIssue,
-        ReadIssue, UpdateIssue, ListJournal, WeekReportIssue)
+        ReadIssue, UpdateIssue, ListJournal, WeekReportIssue, EditField)
 
 
 COMMAND = [ListIssue("list_issue"), CreateIssue("create_issue"),

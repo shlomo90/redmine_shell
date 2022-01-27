@@ -165,6 +165,48 @@ class ListProject(Command):
         ri.help_user_input(text.encode())
         print(text)
 
+
+class ListTracker(Command):
+    ''' List Tracker Command. '''
+    DESC = "Check current redmine's Tracker list."
+
+    def _init_type(self):
+        self.type = CommandType.EXECUTE
+
+    def run(self, shell):
+        _, url, key = get_current_redmine()
+        ri = RedmineHelper(url=url, key=key)
+        lines = ["tid: tracker name", "---+----------------"]
+        for tracker in ri.tracker.all():
+            tid = tracker.id
+            tname = tracker.name
+            lines.append("{: >3}: {}".format(tid, tname))
+        text = '\n'.join(lines)
+        ri.help_user_input(text.encode())
+        print(text)
+        return text
+
+class ListAssignUser(Command):
+    ''' List Assign Users Command. '''
+    DESC = "Check current redmine's Assigned Users list."
+
+    def _init_type(self):
+        self.type = CommandType.EXECUTE
+
+    def run(self, shell):
+        _, url, key = get_current_redmine()
+        ri = RedmineHelper(url=url, key=key)
+        lines = ["Ass: User name", "---+----------------"]
+        for user in ri.user.all():
+            uid = user.id
+            uname = "{} {}".format(user.firstname, user.lastname)
+            lines.append("{: >3}: {}".format(uid, uname))
+        text = '\n'.join(lines)
+        ri.help_user_input(text.encode())
+        print(text)
+        return text
+
+
 class CopyScript(Command):
     ''' Copy the script in clipboard. '''
     DESC = "Copy the script in clipboard."

@@ -425,8 +425,20 @@ class EditField(Command):
         if issue is None:
             return True
 
+        target_fields = [
+            'project_id',   # ListProject
+            'subject',      # User Input
+            'tracker_id',   # ListTracker
+            #'priority_id',  # User Input
+            #'category_id',
+            'assigned_to_id',
+            'parent_issue_id',
+            'start_date',
+            'due_date',
+        ]
+
         try:
+            # Give information.
             ri.help_edit_description(issue)
         except:
-            p
-
+            pass
