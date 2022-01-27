@@ -9,7 +9,8 @@ from redmine_shell.command.issue.commands import (ListIssue, CreateIssue,
 
 COMMAND = [ListIssue("list_issue"), CreateIssue("create_issue"),
            ReadIssue("read_issue"), UpdateIssue("update_issue"),
-           ListJournal("list_journal"), WeekReportIssue("weekreport_issue"), ]
+           ListJournal("list_journal"), WeekReportIssue("weekreport_issue"),
+           EditField("edit_field") ]
 
 
 class RedmineIssue(Command):

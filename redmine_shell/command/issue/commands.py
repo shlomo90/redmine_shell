@@ -411,3 +411,22 @@ class WeekReportIssue(Command):
                 print("Edit description Fail")
                 return True
         return True
+
+
+class EditField(Command):
+    ''' Edit Field Command. '''
+    name = "edit_field"
+    DESC = "Edit Field of Issue"
+
+    def run(self):
+        _, url, key = get_current_redmine()
+        ri = RedmineHelper(url=url, key=key)
+        issue = ri.help_ask_issue_number()
+        if issue is None:
+            return True
+
+        try:
+            ri.help_edit_description(issue)
+        except:
+            p
+
