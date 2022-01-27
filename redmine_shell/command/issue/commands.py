@@ -425,20 +425,74 @@ class EditField(Command):
         if issue is None:
             return True
 
-        target_fields = [
-            'project_id',   # ListProject
-            'subject',      # User Input
-            'tracker_id',   # ListTracker
-            #'priority_id',  # User Input
-            #'category_id',
-            'assigned_to_id',
-            'parent_issue_id',
-            'start_date',
-            'due_date',
-        ]
+        return self.edit_field(ri, issue)
 
-        try:
-            # Give information.
-            ri.help_edit_description(issue)
-        except:
-            pass
+    def edit_field(self, ri, issue):
+        def _get_value(line):
+            return line[line.index('[')+1:line.index(']')]
+
+        from redmine_shell.command.system.commands import (
+            ListProject, ListTracker, ListAssignUser)
+
+        # First
+        issue_res = ri.help_get_issue_instance(issue)
+
+        help_messages = []
+        help_messages += ListProject.get_project_lines(ri)
+        help_messages.append('> Project: [{}]'.format(issue_res.project.id))
+        help_messages.append('> Subject: [{}]'.format(issue_res.subject))
+        encoded_msgs = '\n'.join(help_messages).encode()
+        kwargs = {
+            'project_id': issue_res.project.id,
+            'subject': issue_res.subject,
+        }
+        answer = ri.help_user_input(encoded_msgs)
+        for line in answer.split('\n'):
+            try:
+                line = line.strip()
+                if line.startswith('> Project') is True:
+                    kwargs['project_id'] = int(_get_value(line))
+                elif line.startswith('> Subject') is True:
+                    kwargs['subject'] = _get_value(line)
+            except:
+                continue
+        ret = ri.help_update_field(issue_res.id, **kwargs)
+        if ret is False:
+            return False
+
+        # Second
+        issue_res = ri.help_get_issue_instance(issue)
+
+        help_messages = []
+        help_messages += ListAssignUser.get_user_lines(ri)
+        default_user_id = getattr(issue_res, "assigned_to", issue_res.author).id
+        help_messages.append('> User: [{}]'.format(default_user_id))
+        help_messages += ListTracker.get_tracker_lines(ri)
+        # TODO: Some projects may not support these tracker IDs. Be careful!
+        help_messages.append('> Tracker: [{}]'.format(issue_res.tracker.id))
+        encoded_msgs = '\n'.join(help_messages).encode()
+        answer = ri.help_user_input(encoded_msgs)
+        kwargs = {
+            'assigned_to_id': int(default_user_id),
+            'tracker_id': int(issue_res.tracker.id),
+            #'start_date': issue_res.start_date,
+            #'due_date': issue_res.due_date,
+        }
+        for line in answer.split('\n'):
+            try:
+                line = line.strip()
+                if line.startswith('> User') is True:
+                    assign = _get_value(line)
+                    if assign:
+                        kwargs['assigned_to_id'] = int(_get_value(line))
+                    else:
+                        continue
+                elif line.startswith('> Tracker') is True:
+                    kwargs['tracker_id'] = int(_get_value(line))
+            except:
+                print("hemm")
+                continue
+        ret = ri.help_update_field(issue_res.id, **kwargs)
+        if ret is False:
+            return False
+        return True

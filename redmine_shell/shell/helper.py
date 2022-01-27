@@ -268,3 +268,7 @@ class RedmineHelper(Redmine):
             #'status_id': solved? new?
         resource = self.issue.create(**default_issue)
         return resource
+
+    def help_get_issue_instance(self, issue):
+        return self.issue.get(issue)
+
