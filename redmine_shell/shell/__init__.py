@@ -28,9 +28,8 @@ import sys
 from redmine_shell.command import Root
 from redmine_shell.command.system import RedmineSystem
 from redmine_shell.command.system.commands import History
-from .config import VERSION, VERSION_CHECK_SERVER
 from .constants import (
-        BANNER_WELCOME, VERSION_CHECK_FORMAT, UPDATE_RECOMMAND_FORMAT,
+        BANNER_WELCOME, UPDATE_RECOMMAND_FORMAT,
         UPDATE_WARNING_MESSAGE, )
 from .command import CommandType
 from .input import redmine_input
@@ -56,50 +55,6 @@ class Shell():
         # Root, System commands connect to Shell
         self.root.connect_shell(self)
         self.system.connect_shell(self)
-
-    @classmethod
-    def version_check(cls):
-        """ Check current redmine_shell is updated or outdated. """
-
-        print("--------------------- Program Check -----------------------")
-        helper = RedmineHelper(VERSION_CHECK_SERVER)
-        data = helper.help_redmine(
-            helper.wiki_page.get, "Wiki", project_id="test", timeout=3)
-        if data is None:
-            print("CANNOT CONNECT {} SERVER [TIMEOUT]".format(
-                VERSION_CHECK_SERVER))
-            return
-
-        wiki = data.text
-        versions = []
-        for line in wiki.split('\n'):
-            if line.startswith('h3. '):
-                version = line.replace('h3. ', '').strip()
-                versions.append(version)
-
-        try:
-            latest_version = versions[0]
-        except IndexError:
-            print("NO VERSION")
-            return
-
-        if VERSION == latest_version:
-            print(VERSION_CHECK_FORMAT.format("UPDATED"))
-        elif VERSION in versions:
-            # OUTDATED
-            print(UPDATE_RECOMMAND_FORMAT.format(latest_version))
-            print("--> RELEASE NOTE")
-
-            releases = wiki.split('---')
-            latest_release = releases[0].strip()
-            for line in latest_release.split('\n'):
-                if line.startswith('h3. '):
-                    continue
-
-                print('    ' + line)
-        else:
-            print(VERSION_CHECK_FORMAT.format("INVALID"))
-            print(UPDATE_WARNING_MESSAGE)
 
     def banner(self):
         """ Print Banner. """
@@ -159,7 +114,6 @@ class Shell():
             print("ERR: {}".format(err))
             self.cleanup()
 
-        self.version_check()
         self.banner()
         self.interactive()
 

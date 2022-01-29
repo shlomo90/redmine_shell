@@ -2,11 +2,9 @@
 
 
 import os
-from redmine_shell.shell.config import VERSION
 
 
 # TODO: Unify name.
-VERSION_CHECK_FORMAT = "PROGRAM VERSION CHECK: [01;31m[K{}[m[K"
 UPDATE_RECOMMAND_FORMAT = "--> The version {} is released! Please upgrade program!"
 UPDATE_WARNING_MESSAGE = "--> WARNING!: This version is an invalid version."
 
@@ -48,8 +46,6 @@ TEMPLATE_CONTENT = """# Write down "내용" part with redmine textile syntax.
 #
 """
 
-BANNER_WELCOME = """Hello! It's redmine_shell ({version}).
-Thanks.""".format(version=VERSION)
-
+BANNER_WELCOME = """Hello! It's redmine_shell. Thanks."""
 HOME_PATH = os.getenv('HOME')
 DATA_PATH = HOME_PATH + '/.redmine_shell'
