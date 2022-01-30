@@ -5,9 +5,6 @@ import os
 
 
 # TODO: Unify name.
-UPDATE_RECOMMAND_FORMAT = "--> The version {} is released! Please upgrade program!"
-UPDATE_WARNING_MESSAGE = "--> WARNING!: This version is an invalid version."
-
 TEMPLATE_COMMON = """# Write down the Title and Time, Presenter, Audience.
 # The "내용" part will be shown after saving this file.
 

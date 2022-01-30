@@ -28,9 +28,7 @@ import sys
 from redmine_shell.command import Root
 from redmine_shell.command.system import RedmineSystem
 from redmine_shell.command.system.commands import History
-from .constants import (
-        BANNER_WELCOME, UPDATE_RECOMMAND_FORMAT,
-        UPDATE_WARNING_MESSAGE, )
+from .constants import BANNER_WELCOME
 from .command import CommandType
 from .input import redmine_input
 from .helper import RedmineHelper
