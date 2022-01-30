@@ -59,7 +59,6 @@ class Shell():
     def banner(self):
         """ Print Banner. """
 
-        print("")
         print("------------------------ BANNER ---------------------------")
         print(BANNER_WELCOME)
         print("")
