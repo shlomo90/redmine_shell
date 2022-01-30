@@ -204,7 +204,9 @@ class UpdateIssue(Command):
         if issue is None:
             return True
 
-        if ri.help_ask_preview_issue() is True:
+        if ri.help_ask_yes_or_no(
+                "Do you wanna use preview of issue?(y/N) ",
+                default_yes=False) is True:
             pnum, wname = get_current_redmine_preview()
             # PREVIEW_WIKI_NAME, PREVIEW_PROJ_NUM
             # should be imported without errors.
@@ -236,7 +238,8 @@ class UpdateIssue(Command):
             os.unlink(tfile.name)
             t.join()
 
-            ret = ri.help_ask_write_issue()
+            ret = ri.help_ask_yes_or_no(
+                "Are you sure?(y/N) ", default_yes=False)
             if not ret:
                 return True
 
@@ -364,7 +367,9 @@ class WeekReportIssue(Command):
         if ri.help_confirm_issue_number(issue) != 'y':
             return True
 
-        if ri.help_ask_preview_issue() is True:
+        if ri.help_ask_yes_or_no(
+                "Do you wanna use preview of issue?(y/N) ",
+                default_yes=False) is True:
             pnum, wname = get_current_redmine_preview()
             # PREVIEW_WIKI_NAME, PREVIEW_PROJ_NUM
             # should be imported without errors.
@@ -396,7 +401,7 @@ class WeekReportIssue(Command):
             os.unlink(tfile.name)
             t.join()
 
-            ret = ri.help_ask_write_issue()
+            ret = ri.help_ask_yes_or_no("Are you sure?(y/N) ", default_yes=False)
             if not ret:
                 return True
 

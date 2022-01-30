@@ -2,7 +2,6 @@
 """
 
 import os
-import sys
 import tempfile
 import subprocess
 import signal
@@ -118,40 +117,28 @@ class RedmineHelper(Redmine):
         cnt = self.help_user_input(enc_content)
         print(cnt)
 
-        ret = self.help_ask_write_issue()
+        ret = self.help_ask_yes_or_no("Are you sure?(y/N)", default_yes=False)
         if not ret:
             return True
 
         self.help_update_description(issue, cnt)
 
     @classmethod
-    def help_ask_preview_issue(cls):
-        """ Ask "Do you wanna use preview of issue? """
-        from redmine_shell.shell.input import redmine_input
-        try:
-            question = "Do you wanna use preview of issue?(y/N) "
-            answer = redmine_input(question)
-            if answer == 'y':
-                return True
-            else:
-                return False
-        except EOFError:
-            print("")
-            return False
-        except KeyboardInterrupt:
-            print("")
-            return False
+    def help_ask_yes_or_no(cls, question, default_yes=True):
+        """ Ask users the question. """
 
-    def help_ask_write_issue(self):
-        """ Ask "Are you sure?" """
         from redmine_shell.shell.input import redmine_input
         try:
-            question = "Are you sure?(y/N) "
             answer = redmine_input(question)
-            if answer == 'y':
+            if answer.lower() == 'y':
                 return True
-            else:
+            elif answer.lower() == 'n':
                 return False
+            else:
+                if default_yes is True:
+                    return True
+                else:
+                    return False
         except EOFError:
             print("")
             return False
