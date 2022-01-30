@@ -13,6 +13,7 @@ from redmine_shell.shell.switch import (
     get_current_redmine_week_report_issue)
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.shell.helper import RedmineHelper
+from redmine_shell.shell.error import InputError
 from threading import Thread
 from urllib import parse
 
@@ -429,7 +430,12 @@ class EditField(Command):
 
     def edit_field(self, ri, issue):
         def _get_value(line):
-            return line[line.index('[')+1:line.index(']')]
+            start_index = line.find('[')
+            end_index = line.rfind(']')
+            if start_index == -1 or end_index == -1:
+                raise InputError("There is no square brackets")
+            else:
+                return line[start_index+1:end_index]
 
         from redmine_shell.command.system.commands import (
             ListProject, ListTracker, ListAssignUser)
