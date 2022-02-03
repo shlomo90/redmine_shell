@@ -3,6 +3,7 @@
 
 import os
 import time
+import datetime
 import tempfile
 import requests
 import webbrowser
@@ -14,8 +15,11 @@ from redmine_shell.shell.switch import (
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.shell.helper import RedmineHelper
 from redmine_shell.shell.error import InputError
+from redmine_shell.command.system.commands import (
+    ListProject, ListTracker, ListAssignUser)
 from threading import Thread
 from urllib import parse
+
 
 
 # Surpress warning messages.
@@ -442,22 +446,14 @@ class EditField(Command):
             else:
                 return line[start_index+1:end_index]
 
-        from redmine_shell.command.system.commands import (
-            ListProject, ListTracker, ListAssignUser)
-
         # First
         issue_res = ri.help_get_issue_instance(issue)
-
         help_messages = []
-        help_messages += ListProject.get_project_lines(ri)
-        help_messages.append('> Project: [{}]'.format(issue_res.project.id))
-        help_messages.append('> Subject: [{}]'.format(issue_res.subject))
-        encoded_msgs = '\n'.join(help_messages).encode()
         kwargs = {
-            'project_id': issue_res.project.id,
-            'subject': issue_res.subject,
+            'project_id': self.get_project(help_messages, ri, issue_res),
+            'subject': self.get_subject(help_messages, issue_res),
         }
-        answer = ri.help_user_input(encoded_msgs)
+        answer = ri.help_user_input('\n'.join(help_messages).encode())
         for line in answer.split('\n'):
             try:
                 line = line.strip()
@@ -473,22 +469,14 @@ class EditField(Command):
 
         # Second
         issue_res = ri.help_get_issue_instance(issue)
-
         help_messages = []
-        help_messages += ListAssignUser.get_user_lines(ri)
-        default_user_id = getattr(issue_res, "assigned_to", issue_res.author).id
-        help_messages.append('> User: [{}]'.format(default_user_id))
-        help_messages += ListTracker.get_tracker_lines(ri)
-        # TODO: Some projects may not support these tracker IDs. Be careful!
-        help_messages.append('> Tracker: [{}]'.format(issue_res.tracker.id))
-        encoded_msgs = '\n'.join(help_messages).encode()
-        answer = ri.help_user_input(encoded_msgs)
         kwargs = {
-            'assigned_to_id': int(default_user_id),
-            'tracker_id': int(issue_res.tracker.id),
-            #'start_date': issue_res.start_date,
-            #'due_date': issue_res.due_date,
+            'assigned_to_id': int(self.get_user(help_messages, ri, issue_res)),
+            'tracker_id': int(self.get_tracker(help_messages, ri, issue_res)),
         }
+        self.get_start_date(help_messages, issue_res)
+        self.get_due_date(help_messages, issue_res)
+        answer = ri.help_user_input('\n'.join(help_messages).encode())
         for line in answer.split('\n'):
             try:
                 line = line.strip()
@@ -500,10 +488,63 @@ class EditField(Command):
                         continue
                 elif line.startswith('> Tracker') is True:
                     kwargs['tracker_id'] = int(_get_value(line))
+                elif line.startswith('> Start Date') is True:
+                    time_value = time.strptime(_get_value(line).strip(), "%Y/%m/%d")
+                    kwargs['start_date'] = datetime.date(
+                        time_value.tm_year, time_value.tm_mon, time_value.tm_mday)
+                elif line.startswith('> Due Date') is True:
+                    time_value = time.strptime(_get_value(line).strip(), "%Y/%m/%d")
+                    kwargs['due_date'] = datetime.date(
+                        time_value.tm_year, time_value.tm_mon, time_value.tm_mday)
             except:
-                print("hemm")
+                print("hmmm")
                 continue
         ret = ri.help_update_field(issue_res.id, **kwargs)
         if ret is False:
             return False
         return True
+
+    def get_project(self, help_messages, ri, issue_res):
+        help_messages += ListProject.get_project_lines(ri)
+        help_messages.append('> Project: [{}]'.format(issue_res.project.id))
+        help_messages.append('')
+        return issue_res.project.id
+
+    def get_subject(self, help_messages, issue_res):
+        help_messages.append('> Subject: [{}]'.format(issue_res.subject))
+        help_messages.append('')
+        return issue_res.subject
+
+    def get_user(self, help_messages, ri, issue_res):
+        help_messages += ListAssignUser.get_user_lines(ri)
+        default_user_id = getattr(issue_res, "assigned_to", issue_res.author).id
+        help_messages.append('> User: [{}]'.format(default_user_id))
+        help_messages.append('')
+        return default_user_id
+    
+    def get_tracker(self, help_messages, ri, issue_res):
+        help_messages += ListTracker.get_tracker_lines(ri)
+        # TODO: Some projects may not support these tracker IDs. Be careful!
+        help_messages.append('> Tracker: [{}]'.format(issue_res.tracker.id))
+        help_messages.append('')
+        return issue_res.tracker.id
+
+    def get_start_date(self, help_messages, issue_res):
+        empty_date = "! Current {} date is empty. Fill or leave it."
+        default_start_date = getattr(issue_res, "start_date", None)
+        if default_start_date is None:
+            default_start_date = datetime.date.today()
+            help_messages.append(empty_date.format('start'))
+        help_messages.append('> Start Date: [{}]'.format(default_start_date.strftime("%Y/%m/%d")))
+        help_messages.append('')
+        return default_start_date
+    
+    def get_due_date(self, help_messages, issue_res):
+        empty_date = "! Current {} date is empty. Fill or leave it."
+        default_due_date = getattr(issue_res, "due_date", None)
+        if default_due_date is None:
+            default_due_date = datetime.date.today()
+            help_messages.append(empty_date.format('due'))
+        help_messages.append('> Due Date: [{}]'.format(default_due_date.strftime("%Y/%m/%d")))
+        help_messages.append('')
+        return default_due_date
