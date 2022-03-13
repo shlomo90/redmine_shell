@@ -11,10 +11,11 @@ import webbrowser
 from redmine_shell.shell.config import DEBUG, DEFAULT_EDITOR
 from redmine_shell.shell.switch import (
     get_current_redmine, get_current_redmine_preview,
-    get_current_redmine_week_report_issue)
+    get_current_redmine_week_report_issue, get_current_redmine_config)
 from redmine_shell.shell.command import Command, CommandType
 from redmine_shell.shell.helper import RedmineHelper
 from redmine_shell.shell.error import InputError
+from redmine_shell.shell.inventory import Inventory
 from redmine_shell.command.system.commands import (
     ListProject, ListTracker, ListAssignUser)
 from threading import Thread
@@ -37,7 +38,10 @@ class CreateIssue(Command):
     def run(self):
         # Just create Redmine Issue with project ID.
         # Rest configurations will be updated by "edit_issue"
-        _, url, key = get_current_redmine()
+        config = get_current_redmine_config()
+        url, key, use_template = (
+            config['URL'], config['KEY'], config['USE_TEMPLATE'])
+
         ri = RedmineHelper(url=url, key=key)
         pid = ri.help_ask_project_number()
         if pid is None:
@@ -45,8 +49,13 @@ class CreateIssue(Command):
 
         # TODO: Need to ask user id (Assigned_ID)
 
+        if use_template is True:
+            description = self.select_template()
+        else:
+            description = "Fill the description."
+
         try:
-            issue = ri.help_create_issue(pid)
+            issue = ri.help_create_issue(pid, description=description)
         except:
             print("Create Issue Failed.")
             return True
@@ -57,6 +66,43 @@ class CreateIssue(Command):
             print("Edit description Fail")
             return True
         return True
+
+    def select_template(self):
+        ''' Lookup ".template" file in ~/.redmine_shell/ '''
+
+        template_files = Inventory.get_command_files('template')
+        if not template_files:
+            return "Fill the description."
+
+        print("#--------------- Template List --------------#")
+        for template_file in Inventory.get_command_files('template'):
+            print(''.join(template_file.split('.')[:-1]))
+        print("#--------------------------------------------#")
+
+        from redmine_shell.shell.input import redmine_input
+        try:
+            name = redmine_input("Template? ")
+        except EOFError:
+            print("")
+            return True
+        except KeyboardInterrupt:
+            print("")
+            return True
+
+        found = False
+        for template_file in Inventory.get_command_files('template'):
+            if name + '.template' == template_file:
+                found = True
+                break
+
+        if found is False:
+            print("Error: No name: {} template.".format(name))
+            return True
+
+        path = Inventory.get_command_file_path(name, 'template')
+        with open(path, 'r') as f:
+            desc = f.read()
+        return desc
 
 
 class ListIssue(Command):
@@ -526,7 +572,7 @@ class EditField(Command):
         help_messages.append('> User: [{}]'.format(default_user_id))
         help_messages.append('')
         return default_user_id
-    
+
     def get_tracker(self, help_messages, ri, issue_res):
         help_messages += ListTracker.get_tracker_lines(ri)
         # TODO: Some projects may not support these tracker IDs. Be careful!
@@ -543,7 +589,7 @@ class EditField(Command):
         help_messages.append('> Start Date: [{}]'.format(default_start_date.strftime("%Y/%m/%d")))
         help_messages.append('')
         return default_start_date
-    
+
     def get_due_date(self, help_messages, issue_res):
         empty_date = "! Current {} date is empty. Fill or leave it."
         default_due_date = getattr(issue_res, "due_date", None)

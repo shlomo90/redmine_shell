@@ -21,15 +21,22 @@ class Inventory():
     USE_COMMANDS = ['template', 'script']
 
     @classmethod
-    def get_command_files(cls, command):
+    def get_inventory_path(cls):
+        config = get_current_redmine_config()
+        return DATA_PATH + '/{}'.format(config['KEY'])
 
+    @classmethod
+    def get_command_file_path(cls, name, command):
+        path = cls.get_inventory_path()
+        return '/'.join([path, name + '.{}'.format(command)])
+
+    @classmethod
+    def get_command_files(cls, command):
         if command not in cls.USE_COMMANDS:
             return []
 
-        config = get_current_redmine_config()
-        path = DATA_PATH + '/{}'.format(config['KEY'])
-
         ret = []
+        path = cls.get_inventory_path()
         for file_name in listdir(path):
             abs_file = '/'.join([path, file_name])
             if isfile(abs_file) and file_name.endswith(command):
@@ -41,9 +48,7 @@ class Inventory():
         if command not in cls.USE_COMMANDS:
             return []
 
-        config = get_current_redmine_config()
-        path = '/'.join([DATA_PATH, config['KEY']])
-
+        path = cls.get_inventory_path()
         temp = tempfile.NamedTemporaryFile()
         system('{} {}'.format('vi', temp.name))
         suffix = '.{}'.format(command)
@@ -64,8 +69,7 @@ class Inventory():
         if command not in cls.USE_COMMANDS:
             return []
 
-        config = get_current_redmine_config()
-        path = '/'.join([DATA_PATH, config['KEY'], name + '.{}'.format(command)])
+        path = cls.get_command_file_path(name, command)
         system('vi {}'.format(path))
 
     @classmethod
@@ -73,7 +77,6 @@ class Inventory():
         if command not in cls.USE_COMMANDS:
             return []
 
-        config = get_current_redmine_config()
-        path = '/'.join([DATA_PATH, config['KEY'], name + '.{}'.format(command)])
+        path = cls.get_command_file_path(name, command)
         with open(path, 'r') as f:
             print(f.read())

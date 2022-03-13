@@ -69,6 +69,7 @@ class Login(SingletonInstane):
             login['PREVIEW_PROJ_NUM'] = value.get('PREVIEW_PROJ_NUM')
             login['PREVIEW_WIKI_NAME'] = value.get('PREVIEW_WIKI_NAME')
             login['WEEK_REPORT_ISSUE'] = value.get('WEEK_REPORT_ISSUE')
+            login['USE_TEMPLATE'] = value.get('USE_TEMPLATE', False)
             data.append(login)
 
         self.data = data
@@ -89,6 +90,15 @@ class Login(SingletonInstane):
             config = self.login
 
         return config['NAME'], config['URL'], config['KEY']
+
+    def current_config(self):
+        ''' Get current login info. '''
+        if self.login is None:
+            config = self.data[self.index]
+            self.login = config
+        else:
+            config = self.login
+        return config
 
     def current_preview(self):
         ''' Get preview setting info. '''
@@ -137,3 +147,10 @@ def get_next_redmine():
     ''' Get next redmine login information. '''
     login = Login.instance()
     return login.next()
+
+
+def get_current_redmine_config():
+    ''' Get current redmine config. '''
+
+    login = Login.instance()
+    return login.current_config()
