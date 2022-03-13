@@ -16,6 +16,7 @@ from redmine_shell.command.issue import RedmineIssue
 from redmine_shell.command.review_page import RedmineReviewPage
 from redmine_shell.command.script import RedmineScript
 from redmine_shell.command.wiki import RedmineWiki
+from redmine_shell.command.template import RedmineTemplate
 
 
 class Root(Command):
@@ -24,7 +25,8 @@ class Root(Command):
     CHILDREN = [RedmineIssue("issue"),
                 RedmineReviewPage("review_page"),
                 RedmineScript("script"),
-                RedmineWiki("wiki"), ]
+                RedmineWiki("wiki"),
+                RedmineTemplate('template'), ]
 
     def _init_type(self):
         self.type = CommandType.CONTAINER
