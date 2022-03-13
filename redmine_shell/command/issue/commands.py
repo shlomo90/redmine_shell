@@ -45,7 +45,12 @@ class CreateIssue(Command):
 
         # TODO: Need to ask user id (Assigned_ID)
 
-        issue = ri.help_create_issue(pid)
+        try:
+            issue = ri.help_create_issue(pid)
+        except:
+            print("Create Issue Failed.")
+            return True
+
         try:
             ri.help_edit_description(issue.id)
         except:
