@@ -1,5 +1,7 @@
 import setuptools
 import os
+import sys
+import json
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -28,3 +30,20 @@ else:
         ],
         python_requires='==3.8',
     )
+
+rs_rc_path = '/'.join([os.environ.get("HOME"), '.redmine_shell_rc'])
+if os.path.isfile(rs_rc_path) is True:
+    sys.exit(0)
+with open(rs_rc_path, 'w') as f:
+    config = {}
+    config['YOUR_NAME'] = {}
+    config['YOUR_NAME']['URL'] = 'http://your.redmine.server.com'
+    config['YOUR_NAME']['KEY'] = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    config['YOUR_NAME']['USE_TEMPLATE'] = True
+    json.dump(config, f, indent=4)
+
+print("######################### NOTICE #######################")
+print("#                                                      #")
+print("# Please complete your ~/.redmine_shell_rc file.       #")
+print("#                                                      #")
+print("########################################################")
