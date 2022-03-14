@@ -49,8 +49,13 @@ class RemoveTemplate(Command):
 
     def run(self, args=None):
 
+        templates = []
+        for template_file in Inventory.get_command_files('template'):
+            templates.append(''.join(template_file.split('.')[:-1]))
+
         try:
-            name = redmine_input("Template Name?: ").strip()
+            name = redmine_input(
+                "Template Name?: ", complete_command=templates).strip()
         except EOFError:
             print("")
             return True
@@ -87,8 +92,13 @@ class EditTemplate(Command):
 
     def run(self, args=None):
 
+        templates = []
+        for template_file in Inventory.get_command_files('template'):
+            templates.append(''.join(template_file.split('.')[:-1]))
+
         try:
-            name = redmine_input("Template Name?: ").strip()
+            name = redmine_input(
+                "Template Name?: ", complete_command=templates).strip()
         except EOFError:
             print("")
             return True
@@ -125,8 +135,13 @@ class ReadTemplate(Command):
 
     def run(self, args=None):
 
+        templates = []
+        for template_file in Inventory.get_command_files('template'):
+            templates.append(''.join(template_file.split('.')[:-1]))
+
         try:
-            name = redmine_input("Template Name?: ").strip()
+            name = redmine_input(
+                "Template Name?: ", complete_command=templates).strip()
         except EOFError:
             print("")
             return True

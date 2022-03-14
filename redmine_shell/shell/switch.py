@@ -2,23 +2,8 @@
 
 
 from pathlib import Path
+from redmine_shell.shell.singleton import SingletonInstane
 import json
-
-
-class SingletonInstane():
-    ''' Singleton Base class. '''
-    __instance = None
-
-    @classmethod
-    def __get_instance(cls):
-        return cls.__instance
-
-    @classmethod
-    def instance(cls, *args, **kargs):
-        ''' Get instance of singleton. '''
-        cls.__instance = cls(*args, **kargs)
-        cls.instance = cls.__get_instance
-        return cls.__instance
 
 
 class LoginError(BaseException):
@@ -74,6 +59,10 @@ class Login(SingletonInstane):
 
         self.data = data
 
+    def iterate_login(self):
+        for login in self.data:
+            yield login
+
     def next(self):
         ''' Get next login info. '''
 
@@ -121,6 +110,11 @@ class Login(SingletonInstane):
             config = self.login
 
         return config['WEEK_REPORT_ISSUE']
+
+
+def get_login():
+    ''' Get login instance. '''
+    return Login.instance()
 
 
 def get_current_redmine():

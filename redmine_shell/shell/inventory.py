@@ -1,9 +1,9 @@
 ''' Redmine Inventory. '''
 
 
-from redmine_shell.shell.switch import get_current_redmine_config
+from redmine_shell.shell.switch import get_current_redmine_config, get_login
 from redmine_shell.shell.constants import DATA_PATH
-from os import listdir, system
+from os import listdir, system, makedirs
 from os.path import isfile, join
 import tempfile
 
@@ -21,9 +21,19 @@ class Inventory():
     USE_COMMANDS = ['template', 'script']
 
     @classmethod
-    def get_inventory_path(cls):
-        config = get_current_redmine_config()
-        return DATA_PATH + '/{}'.format(config['KEY'])
+    def load_inventory_directories(cls):
+        login_instance = get_login()
+        for login in login_instance.iterate_login():
+            path = cls.get_inventory_path(key=login['KEY'])
+            makedirs(path, exist_ok=True)
+
+    @classmethod
+    def get_inventory_path(cls, key=None):
+        if key is not None:
+            return DATA_PATH + '/{}'.format(key)
+        else:
+            config = get_current_redmine_config()
+            return DATA_PATH + '/{}'.format(config['KEY'])
 
     @classmethod
     def get_command_file_path(cls, name, command):

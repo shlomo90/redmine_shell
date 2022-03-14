@@ -33,6 +33,7 @@ from .command import CommandType
 from .input import redmine_input
 from .helper import RedmineHelper
 from .switch import get_current_redmine, LoginError
+from .inventory import Inventory
 
 
 class Shell():
@@ -88,6 +89,10 @@ class Shell():
             self.cursor.rollback()
         return
 
+    def load(self):
+        Inventory.load_inventory_directories()
+        return self.load_run_commands()
+
     def load_run_commands(self):
         ''' Load "~/.redmine_shell_rc".
 
@@ -106,7 +111,7 @@ class Shell():
 
     def start(self):
         """ Start redmine shell. """
-        result, err = self.load_run_commands()
+        result, err = self.load()
         if result is False:
             print("ERR: {}".format(err))
             self.cleanup()
