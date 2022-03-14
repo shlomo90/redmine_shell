@@ -70,18 +70,21 @@ class CreateIssue(Command):
     def select_template(self):
         ''' Lookup ".template" file in ~/.redmine_shell/ '''
 
-        template_files = Inventory.get_command_files('template')
-        if not template_files:
+        templates = []
+        for template_file in Inventory.get_command_files('template'):
+            templates.append(''.join(template_file.split('.')[:-1]))
+        if not templates:
             return "Fill the description."
 
         print("#--------------- Template List --------------#")
-        for template_file in Inventory.get_command_files('template'):
-            print(''.join(template_file.split('.')[:-1]))
+        for template in templates:
+            print(template)
         print("#--------------------------------------------#")
 
         from redmine_shell.shell.input import redmine_input
         try:
-            name = redmine_input("Template? ")
+            name = redmine_input(
+                "Template? ", complete_command=templates)
         except EOFError:
             print("")
             return True
