@@ -226,7 +226,7 @@ class RedmineHelper(Redmine):
     @classmethod
     def help_ask_wiki_name(cls):
         ''' Ask target wiki name. '''
-        from redmine_shell.shell.redmine_input import redmine_input
+        from redmine_shell.shell.input import redmine_input
 
         try:
             wiki = redmine_input("Target Wiki Name(default:wiki): ")
@@ -241,6 +241,25 @@ class RedmineHelper(Redmine):
             return wiki
         else:
             return 'Wiki'
+
+    @classmethod
+    def help_ask(cls, question):
+        ''' Ask the question. '''
+        from redmine_shell.shell.input import redmine_input
+
+        try:
+            word = redmine_input(question)
+        except EOFError:
+            print("")
+            return None
+        except KeyboardInterrupt:
+            print("")
+            return None
+
+        if word.strip():
+            return word
+        else:
+            return None
 
     def help_execute(self):
         """ Execute command. """

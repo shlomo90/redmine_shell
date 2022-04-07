@@ -27,6 +27,15 @@ from urllib import parse
 requests.packages.urllib3.disable_warnings()
 
 
+def _get_value(line):
+    start_index = line.find('[')
+    end_index = line.rfind(']')
+    if start_index == -1 or end_index == -1:
+        raise InputError("There is no square brackets")
+    else:
+        return line[start_index+1:end_index]
+
+
 class CreateIssue(Command):
     ''' Create Issue Command. '''
     name = "create_issue"
@@ -492,13 +501,6 @@ class EditField(Command):
         return self.edit_field(ri, issue)
 
     def edit_field(self, ri, issue):
-        def _get_value(line):
-            start_index = line.find('[')
-            end_index = line.rfind(']')
-            if start_index == -1 or end_index == -1:
-                raise InputError("There is no square brackets")
-            else:
-                return line[start_index+1:end_index]
 
         # First
         issue_res = ri.help_get_issue_instance(issue)
@@ -602,3 +604,37 @@ class EditField(Command):
         help_messages.append('> Due Date: [{}]'.format(default_due_date.strftime("%Y/%m/%d")))
         help_messages.append('')
         return default_due_date
+
+
+class SearchIssue(Command):
+    ''' Search Issue Command. '''
+    name = 'search_issue'
+    DESC = 'Search the word in Issues'
+
+    def run(self):
+        _, url, key = get_current_redmine()
+        ri = RedmineHelper(url=url, key=key)
+
+        answer = ri.help_user_input("Search word: []".encode())
+        print(answer.strip())
+        try:
+            word = _get_value(answer)
+        except InputError as e:
+            return None
+
+        searched = ri.issue.search(word)
+        if searched is None:
+            print('===================SEARCHED ISSUES======================')
+            print('========================================================')
+            return None
+
+        contents = []
+        for found_issue in list(searched):
+            issue_id = found_issue.id
+            issue_subject = found_issue.title
+            contents.append('{:<5}:{}\nURL: {}'.format(issue_id, issue_subject, found_issue.url))
+
+        print('===================SEARCHED ISSUES======================')
+        print('\n--------------------------------------------------------\n'.join(contents))
+        print('========================================================')
+        return True
