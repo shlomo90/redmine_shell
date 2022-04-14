@@ -44,6 +44,24 @@ class CreateIssue(Command):
     def _init_type(self):
         self.type = CommandType.EXECUTE
 
+    def parse_user_answer(self, answer):
+        kwargs = {}
+        for line in answer.split('\n'):
+            try:
+                line = line.strip()
+                if line.startswith('> Project') is True:
+                    kwargs['project_id'] = int(_get_value(line))
+                elif line.startswith('> Subject') is True:
+                    kwargs['subject'] = _get_value(line)
+                elif line.startswith('> Template') is True:
+                    try:
+                        kwargs['template'] = int(_get_value(line))
+                    except BaseException as e:
+                        kwargs['template'] = None
+            except:
+                continue
+        return kwargs
+
     def run(self):
         # Just create Redmine Issue with project ID.
         # Rest configurations will be updated by "edit_issue"
@@ -52,19 +70,34 @@ class CreateIssue(Command):
             config['URL'], config['KEY'], config['USE_TEMPLATE'])
 
         ri = RedmineHelper(url=url, key=key)
-        pid = ri.help_ask_project_number()
-        if pid is None:
-            return True
 
         # TODO: Need to ask user id (Assigned_ID)
+        help_messages = []
+        help_messages += ListProject.get_project_lines(ri)
+        help_messages.append('> Project: [ ]')
 
-        if use_template is True:
-            description = self.select_template()
-        else:
-            description = "Fill the description."
+        help_messages.append('> Subject: [ ]')
+        help_messages.append('')
+
+        help_messages.append('> Template (number): [ ]')
+        template_map = {None: 'Fill the description.'}
+        for i, template_file in enumerate(
+                Inventory.get_command_files('template'), start=1):
+            template_name = ''.join(template_file.split('.')[:-1])
+            template_map[i] = template_name
+            help_messages.append('{:<2}: {}'.format(i, template_name))
+
+        answer = ri.help_user_input('\n'.join(help_messages).encode())
+        ret = self.parse_user_answer(answer)
+
+        pid = ret.get('project_id')
+        subject = ret.get('subject')
+        template_name = template_map[ret.get('template')]
+        description = self.get_template_description(template_name)
 
         try:
-            issue = ri.help_create_issue(pid, description=description)
+            issue = ri.help_create_issue(
+                pid, subject=subject, description=description)
         except:
             print("Create Issue Failed.")
             return True
@@ -74,33 +107,11 @@ class CreateIssue(Command):
         except:
             print("Edit description Fail")
             return True
+
+        print("issue {} is created.".format(issue.id))
         return True
 
-    def select_template(self):
-        ''' Lookup ".template" file in ~/.redmine_shell/ '''
-
-        templates = []
-        for template_file in Inventory.get_command_files('template'):
-            templates.append(''.join(template_file.split('.')[:-1]))
-        if not templates:
-            return "Fill the description."
-
-        print("#--------------- Template List --------------#")
-        for template in templates:
-            print(template)
-        print("#--------------------------------------------#")
-
-        from redmine_shell.shell.input import redmine_input
-        try:
-            name = redmine_input(
-                "Template? ", complete_command=templates)
-        except EOFError:
-            print("")
-            return True
-        except KeyboardInterrupt:
-            print("")
-            return True
-
+    def get_template_description(self, name):
         found = False
         for template_file in Inventory.get_command_files('template'):
             if name + '.template' == template_file:
