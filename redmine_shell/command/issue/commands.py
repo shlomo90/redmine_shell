@@ -622,6 +622,26 @@ class SearchIssue(Command):
     name = 'search_issue'
     DESC = 'Search the word in Issues'
 
+    def search_json(self, url, key, word):
+        headers = {}
+        headers['X-Redmine-API-Key'] = key
+        res = requests.get(
+            # params {'q': quoted_word} doesn't work. so...
+            url + '/search.json?q={}'.format(parse.quote_plus(word)),
+            headers=headers,
+            verify=False)
+        if res.status_code != 200:
+            print("status is not 200")
+            return None
+
+        issues = []
+        results = res.json()
+        for result in res.json()['results']:
+            if result['type'] not in ['issue-closed', 'issue']:
+                continue
+            issues.append(result)
+        return issues
+
     def run(self):
         _, url, key = get_current_redmine()
         ri = RedmineHelper(url=url, key=key)
@@ -633,17 +653,18 @@ class SearchIssue(Command):
         except InputError as e:
             return None
 
-        searched = ri.issue.search(word)
-        if searched is None:
+        searched = self.search_json(url, key, word)
+        if not searched:
             print('===================SEARCHED ISSUES======================')
             print('========================================================')
             return None
 
         contents = []
         for found_issue in list(searched):
-            issue_id = found_issue.id
-            issue_subject = found_issue.title
-            contents.append('{:<5}:{}\nURL: {}'.format(issue_id, issue_subject, found_issue.url))
+            issue_id = found_issue['id']
+            issue_subject = found_issue['title']
+            issue_url = found_issue['url']
+            contents.append('{:<5}:{}\nURL: {}'.format(issue_id, issue_subject, issue_url))
 
         print('===================SEARCHED ISSUES======================')
         print('\n--------------------------------------------------------\n'.join(contents))
