@@ -98,7 +98,10 @@ class Login(SingletonInstane):
         else:
             config = self.login
 
-        return config['PREVIEW_PROJ_NUM'], config['PREVIEW_WIKI_NAME']
+        return (
+            config.get('USE_PREVIEW', False),
+            config['PREVIEW_PROJ_NUM'],
+            config['PREVIEW_WIKI_NAME'])
 
     def current_week_report_issue(self):
         ''' Get Week Report Issue. '''

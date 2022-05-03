@@ -282,10 +282,10 @@ class UpdateIssue(Command):
         if issue is None:
             return True
 
-        if ri.help_ask_yes_or_no(
+        puse, pnum, wname = get_current_redmine_preview()
+        if puse is True and ri.help_ask_yes_or_no(
                 "Do you wanna use preview of issue?(y/N) ",
                 default_yes=False) is True:
-            pnum, wname = get_current_redmine_preview()
             # PREVIEW_WIKI_NAME, PREVIEW_PROJ_NUM
             # should be imported without errors.
             # These variables are used for the access temporary wiki page

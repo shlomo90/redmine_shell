@@ -40,6 +40,7 @@ with open(rs_rc_path, 'w') as f:
     config['YOUR_NAME']['URL'] = 'http://your.redmine.server.com'
     config['YOUR_NAME']['KEY'] = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     config['YOUR_NAME']['USE_TEMPLATE'] = True
+    config['YOUR_NAME']['USE_PREVIEW'] = False
     json.dump(config, f, indent=4)
 
 print("######################### NOTICE #######################")
