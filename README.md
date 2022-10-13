@@ -38,28 +38,3 @@
 5. Run "redmine_shell". `./start.sh`
 
 https://user-images.githubusercontent.com/44340022/158195488-f1df194d-77b8-4e8e-be20-34b7cf321bb5.mov
-
-
-## Known Issues
-
-### 1. SSL Verify Issue
-
-* If your redmine server has a self-signed certificate, "redmine_shell" would print many warning messages.
-  Because Client side can't verify the server's certificate.
-* To surpress the warning messages, you need to edit code in "python-redmine" source code.
-
-```python
-#./redmine/lib/python3.8/site-packages/python_redmine-2.3.0-py3.8.egg/redminelib/engines/sync.py
-
-class SyncEngine(BaseEngine):
-    @staticmethod
-    def create_session(**params):
-        session = requests.Session()
-        session.verify = False                       #<--- Added
-        requests.packages.urllib3.disable_warnings() #<--- Added
-
-        for param in params:
-            setattr(session, param, params[param])
-
-        return session
-```

@@ -7,6 +7,7 @@ import subprocess
 import signal
 from redmine_shell.shell.config import DEFAULT_EDITOR
 from redmine_shell.shell.error import InputError
+from redmine_shell.shell.engine import MySyncEngine
 from redminelib import Redmine, exceptions
 
 
@@ -18,7 +19,7 @@ class RedmineHelper(Redmine):
     """
 
     def __init__(self, url, key=None):
-        super(RedmineHelper, self).__init__(url, key=key)
+        super(RedmineHelper, self).__init__(url, key=key, engine=MySyncEngine)
         self.rh_url = url
         self.rh_key = key
 
