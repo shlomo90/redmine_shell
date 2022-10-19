@@ -540,6 +540,7 @@ class EditField(Command):
         kwargs = {
             'assigned_to_id': int(self.get_user(help_messages, ri, issue_res)),
             'tracker_id': int(self.get_tracker(help_messages, ri, issue_res)),
+            'parent_issue_id': int(self.get_parent_issue(help_messages, ri, issue_res)),
         }
         self.get_start_date(help_messages, issue_res)
         self.get_due_date(help_messages, issue_res)
@@ -563,6 +564,8 @@ class EditField(Command):
                     time_value = time.strptime(_get_value(line).strip(), "%Y/%m/%d")
                     kwargs['due_date'] = datetime.date(
                         time_value.tm_year, time_value.tm_mon, time_value.tm_mday)
+                elif line.startswith('> ParentIssue') is True:
+                    kwargs['parent_issue_id'] = int(_get_value(line))
             except:
                 print("hmmm")
                 continue
@@ -595,6 +598,11 @@ class EditField(Command):
         help_messages.append('> Tracker: [{}]'.format(issue_res.tracker.id))
         help_messages.append('')
         return issue_res.tracker.id
+
+    def get_parent_issue(self, help_messages, ri, issue_res):
+        help_messages.append('> ParentIssue: [{}]'.format(issue_res.parent_issue_id))
+        help_messages.append('')
+        return issue_res.parent_issue_id
 
     def get_start_date(self, help_messages, issue_res):
         empty_date = "! Current {} date is empty. Fill or leave it."
