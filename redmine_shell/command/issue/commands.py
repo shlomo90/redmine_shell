@@ -17,7 +17,7 @@ from redmine_shell.shell.helper import RedmineHelper
 from redmine_shell.shell.error import InputError
 from redmine_shell.shell.inventory import Inventory
 from redmine_shell.command.system.commands import (
-    ListProject, ListTracker, ListAssignUser)
+    ListProject, ListTracker, ListAssignUser, ListStatus)
 from threading import Thread
 from urllib import parse
 
@@ -540,6 +540,9 @@ class EditField(Command):
         kwargs = {
             'assigned_to_id': int(self.get_user(help_messages, ri, issue_res)),
             'tracker_id': int(self.get_tracker(help_messages, ri, issue_res)),
+            'parent_issue_id': self.get_parent_issue(help_messages, ri, issue_res),
+            'done_ratio': self.get_done_ratio(help_messages, ri, issue_res),
+            'status': self.get_status(help_messages, ri, issue_res),
         }
         self.get_start_date(help_messages, issue_res)
         self.get_due_date(help_messages, issue_res)
@@ -563,6 +566,14 @@ class EditField(Command):
                     time_value = time.strptime(_get_value(line).strip(), "%Y/%m/%d")
                     kwargs['due_date'] = datetime.date(
                         time_value.tm_year, time_value.tm_mon, time_value.tm_mday)
+                elif line.startswith('> ParentIssue') is True:
+                    parent = _get_value(line)
+                    if parent:
+                        kwargs['parent_issue_id'] = int(parent)
+                elif line.startswith('> Done Ratio') is True:
+                    kwargs['done_ratio'] = int(_get_value(line))
+                elif line.startswith('> Status') is True:
+                    kwargs['status_id'] = int(_get_value(line))
             except:
                 print("hmmm")
                 continue
@@ -595,6 +606,27 @@ class EditField(Command):
         help_messages.append('> Tracker: [{}]'.format(issue_res.tracker.id))
         help_messages.append('')
         return issue_res.tracker.id
+
+    def get_parent_issue(self, help_messages, ri, issue_res):
+        default_parent_id = getattr(issue_res, "parent", "")
+        help_messages.append('> ParentIssue: [{}]'.format(default_parent_id))
+        help_messages.append('')
+        return default_parent_id
+
+    def get_done_ratio(self, help_messages, ri, issue_res):
+        help_messages.append('> Done Ratio: [{}]'.format(issue_res.done_ratio))
+        help_messages.append('')
+        return issue_res.done_ratio
+
+    def get_status(self, help_messages, ri, issue_res):
+        default_status_id = ''
+        for value in ri.issue_status.all().values():
+            if value['id'] == issue_res.status.id:
+                default_status_id = value['id']
+        help_messages += ListStatus.get_status_lines(ri)
+        help_messages.append('> Status: [{}]'.format(default_status_id))
+        help_messages.append('')
+        return default_status_id
 
     def get_start_date(self, help_messages, issue_res):
         empty_date = "! Current {} date is empty. Fill or leave it."

@@ -223,6 +223,33 @@ class ListAssignUser(Command):
         return lines
 
 
+class ListStatus(Command):
+    ''' List Status Command. '''
+    DESC = "Check current redmine's Status list."
+
+    def _init_type(self):
+        self.type = CommandType.EXECUTE
+
+    def run(self, shell):
+        _, url, key = get_current_redmine()
+        ri = RedmineHelper(url=url, key=key)
+        lines = self.get_status_lines(ri)
+        text = '\n'.join(lines)
+        ri.help_user_input(text.encode())
+        print(text)
+        return text
+
+    @classmethod
+    def get_status_lines(cls, ri):
+        lines = ["sid: Status name", "---+----------------"]
+        for value in ri.issue_status.all().values():
+            sid = value['id']
+            sname = value['name']
+            lines.append("{: >3}: {}".format(sid, sname))
+        return lines
+
+
+
 class CopyScript(Command):
     ''' Copy the script in clipboard. '''
     DESC = "Copy the script in clipboard."
