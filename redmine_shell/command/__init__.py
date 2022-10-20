@@ -5,6 +5,7 @@ Redmine Shell Menu commands consist of directories as like:
     - review_page
     - script
     - wiki
+    - configure
 
 When redmine shell starts to be loaded, Shell class instance loads the
 This script file and its sub directories in order.
@@ -17,6 +18,7 @@ from redmine_shell.command.review_page import RedmineReviewPage
 from redmine_shell.command.script import RedmineScript
 from redmine_shell.command.wiki import RedmineWiki
 from redmine_shell.command.template import RedmineTemplate
+from redmine_shell.command.configure import RedmineConfigure
 
 
 class Root(Command):
@@ -26,7 +28,8 @@ class Root(Command):
                 RedmineReviewPage("review_page"),
                 RedmineScript("script"),
                 RedmineWiki("wiki"),
-                RedmineTemplate('template'), ]
+                RedmineTemplate('template'),
+                RedmineConfigure('configure'), ]
 
     def _init_type(self):
         self.type = CommandType.CONTAINER
