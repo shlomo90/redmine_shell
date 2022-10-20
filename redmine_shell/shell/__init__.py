@@ -84,10 +84,11 @@ class Shell():
         history.append(child.name)
 
         self.cursor.move_cursor(child)
+        ret = None
         if self.cursor.current.type == CommandType.EXECUTE:
-            self.cursor.current.run()
+            ret = self.cursor.current.run()
             self.cursor.rollback()
-        return
+        return ret
 
     def load(self):
         Inventory.load_inventory_directories()
@@ -120,6 +121,7 @@ class Shell():
         self.interactive()
 
     def interactive(self):
+        do_reload = False
         try:
             while True:
                 exe_cmds = self.cursor.list_children()
@@ -128,7 +130,9 @@ class Shell():
                 tot_cmds = exe_cmds + sys_cmds
 
                 try:
-                    name = get_current_redmine()[0]   #0: name
+                    if do_reload:
+                        name = get_current_redmine()[0]
+                    name = get_current_redmine(reload=do_reload)[0]
                     curr = self.cursor.get_current()
                     line = redmine_input(
                         "{}-{}> ".format(name, curr.name),
@@ -147,7 +151,11 @@ class Shell():
                     else:
                         line = 'back'
 
-                self.execute_command(line)
+                ret = self.execute_command(line)
+                if ret == 'reload':
+                    do_reload = True
+                else:
+                    do_reload = False
         except KeyboardInterrupt:
             print("bye")
             self.cleanup()

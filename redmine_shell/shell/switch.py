@@ -114,17 +114,31 @@ class Login(SingletonInstane):
 
         return config['WEEK_REPORT_ISSUE']
 
+    def is_name_on(self, name):
+        for login in self.data:
+            if name == login['NAME']:
+                return True
+        return False
+
 
 def get_login():
     ''' Get login instance. '''
     return Login.instance()
 
 
-def get_current_redmine():
+def get_current_redmine(reload=False):
     ''' Get current redmine login information. '''
 
     login = Login.instance()
-    return login.current()
+    if reload:
+        old = login.current()[0]
+        login.load_rc()
+        if login.is_name_on(old):
+            return login.current()
+        else:
+            return login.next()
+    else:
+        return login.current()
 
 
 def get_current_redmine_preview():
