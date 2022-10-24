@@ -7,9 +7,15 @@ then
 fi
 
 ret=`docker container ps -a --format "{{.Names}}" | grep redmine_shell`
-if [ "$ret" == "redmine_shell" ]
+if [ "$ret" != "redmine_shell" ]
 then
-    docker start -a -i redmine_shell
-else
-    docker run -it --name redmine_shell redmine_shell
+    docker run -d -it --name redmine_shell redmine_shell
 fi
+
+ret=`docker container ls --format "{{.Names}}" | grep redmine_shell`
+if [ "$ret" != "redmine_shell" ]
+then
+    docker start redmine_shell
+fi
+
+docker exec -it redmine_shell python start.py
