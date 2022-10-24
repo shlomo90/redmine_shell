@@ -7,6 +7,7 @@ We provide a Dockerfile to build the redmine shell image and highly recommend ru
 ## Requirements
 
 1. Docker
+2. Python3
 
 
 ## Run redmine_shell as Docker Container
