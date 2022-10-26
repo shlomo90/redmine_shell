@@ -271,3 +271,15 @@ class CopyScript(Command):
 
         pc.copy(data)
         print("Copy Done!")
+
+
+class StartShell(Command):
+    ''' Enter the bash shell. '''
+    DESC = "Start Shell"
+
+    def _init_type(self):
+        self.type = CommandType.EXECUTE
+
+    def run(self, shell):
+        os.system('/bin/bash')
+        return
